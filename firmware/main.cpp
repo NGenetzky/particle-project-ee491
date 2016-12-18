@@ -32,6 +32,7 @@ auto sw2 = iot::DigitalPin(iot::board::SW2);
 auto sw3 = iot::DigitalPin(iot::board::SW3);
 
 auto MainDPort = iot::DigitalPort(std::vector<iot::DigitalPin>{board_led, led1, led2, led3, sw1, sw2, sw3});
+
 auto app = iot::App(HELP, MainDPort);
 
 void setup(){
@@ -48,10 +49,7 @@ void setup(){
 
     app.setup();
 
-    // app.set(7);
     delay(500);
-    // app.set(app.get());
-
 }
 
 // This routine gets called repeatedly, like once every 5-15 milliseconds.

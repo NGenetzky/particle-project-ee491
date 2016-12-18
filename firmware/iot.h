@@ -78,19 +78,89 @@ class DigitalPort {
     std::vector<DigitalPin> dpins;
 };
 
+class Stream {
+    public:
+    Stream() = default;
+    
+    int setup() {
+        this->v.reserve(this->RESERVED_SPACE);
+    }
+
+    // Get the number of bytes (characters) available for reading from the
+    // serial port. This is data that's already arrived and stored in the
+    // serial receive buffer.
+    int available() {
+        auto in_buff = v.size();
+        if(in_buff==0){
+            return -1;
+        } else if (in_buff <= this->read_cursor){
+            return -1;
+        } else {
+            return in_buff - this->read_cursor;
+        }
+    };
+
+    // Writes binary data. This data is sent as a byte or series of bytes; to
+    // send the characters representing the digits of a number use the print()
+    // function instead.
+    // Parameters:
+    // val: a value to send as a single byte
+    // str: a string to send as a series of bytes
+    // buf: an array to send as a series of bytes
+    // len: the length of the buffer
+    // write() will return the number of bytes written.
+    int write(char value){
+        this->v.push_back(value);
+        return 1;
+    }
+    // int write(char *values){}
+    // int write(char *values, unsigned len){}
+    void push_back(char value){
+        this->v.push_back(value);
+    }
+    
+    // read() returns the first byte of incoming serial data available (or -1
+    // if no data is available) - int
+    int read(){
+        if(this->available() == 0){
+            return -1;
+        } else {
+            return this->v[ this->read_cursor++ ];
+        }
+    }
+
+    char *data(){
+        return this->v.data();
+    }
+
+    private:
+        std::vector<char> v = {};
+        unsigned read_cursor=0;
+        const unsigned RESERVED_SPACE=255;
+};
+
 class App {
     public:
     App(const char *HELP): HELP(HELP)
     { };
     App(const char *HELP, DigitalPort dport): HELP(HELP), dport(dport)
     { };
-    
+
     int setup(){
         this->dport.setup();
 
         this->setup_PV_help();
         this->setup_PF_set();
         this->setup_PF_get();
+
+        this->std_in.setup();
+        this->get_stdin_p();
+        this->setup_PV_stdin();
+        this->setup_PF_cin();
+
+        this->std_out.setup();
+        this->get_stdout_p();
+        this->setup_PV_stdout();
 
         return 0;
     }
@@ -108,13 +178,38 @@ class App {
         return this->dport.get();
     }
 
+    char* get_stdin_p(){
+        this->stdin_p = this->std_in.data();
+        return this->stdin_p;
+    }
+
+    int PF_cin(String args){
+        auto len = args.length();
+        for (unsigned i =0; i<len; i++){
+            this->std_in.write(args.charAt(i));
+        }
+        return this->std_in.available();
+    }
+
+    char* get_stdout_p(){
+        this->stdout_p = this->std_out.data();
+        return this->stdout_p;
+    }
+
     bool setup_PV_help(){ return Particle.variable("help", this->HELP); }
+    bool setup_PV_stdin(){ return Particle.variable("stdin", this->stdin_p); }
+    bool setup_PV_stdout(){ return Particle.variable("stdout", this->stdout_p); }
     bool setup_PF_set(){ return Particle.function("set", &App::PF_set, this); }
     bool setup_PF_get(){ return Particle.function("get", &App::PF_get, this); }
+    bool setup_PF_cin(){ return Particle.function("cin", &App::PF_cin, this); }
 
     private:
     const char *HELP;
     DigitalPort dport;
+    Stream std_in;
+    char *stdin_p;
+    Stream std_out;
+    char *stdout_p;
 };
 
 namespace board {
