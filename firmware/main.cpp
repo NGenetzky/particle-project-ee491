@@ -2,8 +2,13 @@
 // main.cpp // Main program for firmware.
 
 // Set HELP at compile time with information useful for the end user.
-const char * HELP = "template:" \
-    " This is just a template";
+const char * HELP =
+    "DigitalPort Example:" \
+    "DigitalPort Example:" \
+    "get()=DigitalPort.get();" \
+    "set(v)=DigitalPort.set(v);" \
+    "DigitalPort={board_led, led1, led2, led3, sw1, sw2, sw3};" \
+    ;
 
 #include "application.h" // Required for Particle.
 #include <vector> // std::vector
@@ -43,9 +48,9 @@ void setup(){
 
     app.setup();
 
-    app.set(7);
+    // app.set(7);
     delay(500);
-    app.set(app.get());
+    // app.set(app.get());
 
 }
 
@@ -53,16 +58,7 @@ void setup(){
 // Spark firmware interleaves background CPU activity associated with WiFi + Cloud activity with your code. 
 // Make sure none of your code delays or blocks for too long (like more than 5 seconds), or weird things can happen.
 void loop(){
-    app.set(loop_count);
-    delay(500);
-    if(app.get() == 0){
-        board_led.set(1);
-    } else if (app.get() ==1 ){
-        board_led.set(0);
-    } else {
 
-    }
-    delay(500);
     loop_count++;
 }
 
