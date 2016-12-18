@@ -16,9 +16,8 @@ const char * HELP = "template:" \
 
 #include "iot.h"
 
-int counter = 0;
+int loop_count = 0;
 
-auto app = iot::App(HELP);
 auto board_led = iot::DigitalPin(iot::board::board_led);
 auto led1 = iot::DigitalPin(iot::board::LED1);
 auto led2 = iot::DigitalPin(iot::board::LED2);
@@ -27,14 +26,11 @@ auto sw1 = iot::DigitalPin(iot::board::SW1);
 auto sw2 = iot::DigitalPin(iot::board::SW2);
 auto sw3 = iot::DigitalPin(iot::board::SW3);
 
+auto MainDPort = iot::DigitalPort(std::vector<iot::DigitalPin>{board_led, led1, led2, led3, sw1, sw2, sw3});
+auto app = iot::App(HELP, MainDPort);
+
 void setup(){
-    app.add(board_led);
-    app.add(led1);
-    app.add(led2);
-    app.add(led3);
-    app.add(sw1);
-    app.add(sw2);
-    app.add(sw3);
+
     // pinMode(BOARD_LED, OUTPUT); //INPUT, INPUT_PULLUP, INPUT_PULLDOWN or OUTPUT
     // pinMode(DAC, OUTPUT); //INPUT, INPUT_PULLUP, INPUT_PULLDOWN or OUTPUT
     // pinMode( D6, INPUT );
@@ -57,7 +53,7 @@ void setup(){
 // Spark firmware interleaves background CPU activity associated with WiFi + Cloud activity with your code. 
 // Make sure none of your code delays or blocks for too long (like more than 5 seconds), or weird things can happen.
 void loop(){
-    app.set(counter);
+    app.set(loop_count);
     delay(500);
     if(app.get() == 0){
         board_led.set(1);
@@ -67,6 +63,6 @@ void loop(){
 
     }
     delay(500);
-    counter++;
+    loop_count++;
 }
 
