@@ -19,13 +19,13 @@ const char * HELP = "template:" \
 int counter = 0;
 
 auto app = iot::App(HELP);
-auto board_led = iot::DigitalOutput(iot::board::board_led);
-auto led1 = iot::DigitalOutput(iot::board::LED1);
-auto led2 = iot::DigitalOutput(iot::board::LED2);
-auto led3 = iot::DigitalOutput(iot::board::LED3);
-auto sw1 = iot::DigitalInput(iot::board::SW1);
-auto sw2 = iot::DigitalInput(iot::board::SW2);
-auto sw3 = iot::DigitalInput(iot::board::SW3);
+auto board_led = iot::DigitalPin(iot::board::board_led);
+auto led1 = iot::DigitalPin(iot::board::LED1);
+auto led2 = iot::DigitalPin(iot::board::LED2);
+auto led3 = iot::DigitalPin(iot::board::LED3);
+auto sw1 = iot::DigitalPin(iot::board::SW1);
+auto sw2 = iot::DigitalPin(iot::board::SW2);
+auto sw3 = iot::DigitalPin(iot::board::SW3);
 
 void setup(){
     app.add(board_led);
