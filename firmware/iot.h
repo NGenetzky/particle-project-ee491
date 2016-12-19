@@ -1,9 +1,23 @@
 #pragma once
 #include "application.h" // Required for Particle.
 #include <vector>
+#include <map>
 #include <bitset>
+#include <functional>
 
 namespace iot {
+
+class Identifier {
+    public:
+    Identifier() = default;
+    Identifier(int id):id(id){};
+    bool operator <(const Identifier& rhs) const {
+        return id < rhs.id;
+    }
+    operator String() const { return String(this->id); };
+    private:
+        int id;
+};
 
 class Pin {
     public:
@@ -78,25 +92,90 @@ class DigitalPort {
     std::vector<DigitalPin> dpins;
 };
 
+// Function object that accepts String and returns int.
+// Similar to one expected for Particle's Cloud Functions.
+using PF_f = std::function<int(String)>;
+
+class Function {
+    public:
+    Function() = default;
+
+    // Returns number of bytes read to create function.
+    // Returns 0 bytes if no function was read.
+    int from_vector(std::vector<char> v, unsigned offset=0){
+        unsigned i = offset;
+        std::vector<char> n;
+        std::vector<char> a;
+        
+        // Check that it has a function
+        if(v[i] != DELIMS[0]){
+            return 0;
+        } else if(v[i+1] != DELIMS[1]){
+            return 0;
+        }
+        
+        // Parse name.
+        for(i = i+2; i<v.size(); i++) {
+            auto c = v[i];
+            if(c == DELIMS[2]){
+                i++;
+                break;
+            } else if(c == DELIMS[3]){
+                // No arguments were supplied.
+                n.push_back('\0');
+                this->name = String(n.data());
+                return i - offset;
+            } else {
+                n.push_back(c);
+            }
+        }
+        
+        // Parse arguments
+        for(; i<v.size(); i++) {
+            auto c = v[i];
+            if(c == DELIMS[3]){
+                n.push_back('\0');
+                this->name = String(n.data());
+                a.push_back('\0');
+                this->args = String(a.data());
+                return i - offset;
+            } else {
+                a.push_back(c);
+            }
+        }
+        return 0;
+    }
+
+    // int operator() (String args);
+
+    String name;
+    String args;
+
+    private:
+        const char *DELIMS = "$( )";  //{'$', '(', ' ', ')'};
+};
+
+
 class Stream {
     public:
     Stream() = default;
     
     int setup() {
         this->v.reserve(this->RESERVED_SPACE);
+        return 0;
     }
 
     // Get the number of bytes (characters) available for reading from the
     // serial port. This is data that's already arrived and stored in the
     // serial receive buffer.
     int available() {
-        auto in_buff = v.size();
-        if(in_buff==0){
-            return -1;
-        } else if (in_buff <= this->read_cursor){
-            return -1;
+        auto in_buffer = v.size();
+        if(in_buffer==0){
+            return 0;
+        } else if (in_buffer <= this->read_cursor){
+            return 0;
         } else {
-            return in_buff - this->read_cursor;
+            return in_buffer - this->read_cursor;
         }
     };
 
@@ -115,9 +194,6 @@ class Stream {
     }
     // int write(char *values){}
     // int write(char *values, unsigned len){}
-    void push_back(char value){
-        this->v.push_back(value);
-    }
     
     // read() returns the first byte of incoming serial data available (or -1
     // if no data is available) - int
@@ -129,8 +205,37 @@ class Stream {
         }
     }
 
+    int read(Function &f){
+        auto rv = f.from_vector(this->v, this->read_cursor);
+        this->read_cursor += rv;
+        return rv;
+    }
+
+    // Returns the next byte (character) of incoming serial data without
+    // removing it from the internal serial buffer. That is, successive calls
+    // to peek() will return the same character, as will the next call to read().
+    // peek() returns the first byte of incoming serial data available (or -1
+    // if no data is available) - int
+    int peek(){
+        if(this->available() == 0){
+            return -1;
+        } else {
+            return this->v[ this->read_cursor ];
+        }
+    }
+
+    // WARNING: This pointer becomes invalid if the vector resizes
     char *data(){
         return this->v.data();
+    }
+
+    void clear() {
+        //In case the container shrinks, all iterators, pointers and
+        //references to elements that have not been removed remain valid after
+        //the resize and refer to the same elements they were referring to
+        //before the call.
+        this->v.resize(0);
+        this->read_cursor = 0;
     }
 
     private:
@@ -163,6 +268,9 @@ class App {
         this->setup_PV_stdout();
 
         return 0;
+    }
+    void loop(){
+
     }
 
     int add(DigitalPin dpin){this->dport.add(dpin); return 0; } ;
@@ -203,13 +311,15 @@ class App {
     bool setup_PF_get(){ return Particle.function("get", &App::PF_get, this); }
     bool setup_PF_cin(){ return Particle.function("cin", &App::PF_cin, this); }
 
+
     private:
-    const char *HELP;
-    DigitalPort dport;
-    Stream std_in;
-    char *stdin_p;
-    Stream std_out;
-    char *stdout_p;
+        const char *HELP;
+        char *stdin_p;
+        char *stdout_p;
+    public:
+        Stream std_in;
+        Stream std_out;
+        DigitalPort dport;
 };
 
 namespace board {
