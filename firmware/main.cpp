@@ -39,7 +39,9 @@ const std::map<unsigned, char const* const> iot::Identifier::DICTIONARY = {
     {0,"null"}, {1,"get"}, {2,"set"}
 };
 
-std::map<unsigned, iot::PF_f> InstructionSet = {
+// Function object that accepts String and returns int.
+// Similar to one expected for Particle's Cloud Functions.
+std::map<unsigned, std::function<int(String)>> InstructionSet = {
     {1, std::bind(&iot::App::PF_get, &app, std::placeholders::_1)},
     {2, std::bind(&iot::App::PF_set, &app, std::placeholders::_1)}
 };
@@ -79,7 +81,7 @@ void process(iot::Stream &i, iot::Stream &o) {
     iot::Function f;
     while(i.available()){
         if(i.peek() != '$'){
-            Particle.publish("process.err1", String(i.available()));
+            Particle.publish("process.err1", String(int(i.peek())));
             i.read(); // throw it away
             continue; // restart the loop.
         }
@@ -99,12 +101,7 @@ void process(iot::Stream &i, iot::Stream &o) {
         }
         auto pf = pf_it->second;
 
-        auto rv = pf(f.get_args());
-        auto rv_str = String(rv);
-        auto len = rv_str.length();
-        for (unsigned i = 0; i<len; i++){
-            o.write(rv_str.charAt(i));
-        }
+        o.write(String(pf(f.get_args())));
     }
 }
 

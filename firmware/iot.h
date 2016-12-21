@@ -113,10 +113,6 @@ class DigitalPort {
     std::vector<DigitalPin> dpins;
 };
 
-// Function object that accepts String and returns int.
-// Similar to one expected for Particle's Cloud Functions.
-using PF_f = std::function<int(String)>;
-
 class Function {
     public:
     Function() = default;
@@ -150,7 +146,7 @@ class Function {
         this->args = std::vector<char>(delim2,delim3);
         this->args.push_back(0);
 
-        return delim3-begin;
+        return delim3-begin+1; // +1 so we throw away delim3
     }
 
     private:
@@ -200,6 +196,14 @@ class Stream {
     }
     // int write(char *values){}
     // int write(char *values, unsigned len){}
+    int write(String value){
+        auto bytes_written = int(0);
+        auto len = value.length();
+        for (unsigned i = 0; i<len; i++){
+            bytes_written += this->write(value.charAt(i));
+        }
+        return bytes_written;
+    }
     
     // read() returns the first byte of incoming serial data available (or -1
     // if no data is available) - int
