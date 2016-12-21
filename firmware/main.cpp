@@ -35,16 +35,14 @@ auto MainDPort = iot::DigitalPort(std::vector<iot::DigitalPin>{board_led, led1, 
 
 auto app = iot::App(HELP, MainDPort);
 
-std::map<String, unsigned> Dictionary = {
-    {String("get"), 1},
-    {String("set"), 2}
+const std::map<unsigned, char const* const> iot::Identifier::DICTIONARY = {
+    {0,"null"}, {1,"get"}, {2,"set"}
 };
+
 std::map<unsigned, iot::PF_f> InstructionSet = {
     {1, std::bind(&iot::App::PF_get, &app, std::placeholders::_1)},
     {2, std::bind(&iot::App::PF_set, &app, std::placeholders::_1)}
 };
-// auto PF_get = iot::Identity<iot::PF_f> {1, std::bind(&iot::App::PF_get, &app, std::placeholders::_1)};
-// auto PF_set = iot::Identity<iot::PF_f> {2, std::bind(&iot::App::PF_set, &app, std::placeholders::_1)};
 
 void process(iot::Stream &in, iot::Stream &o);
 
@@ -92,12 +90,7 @@ void process(iot::Stream &i, iot::Stream &o) {
         }
         Particle.publish(f.get_name(), f.get_args());
 
-        auto id_it = Dictionary.find(f.get_name());
-        if (id_it == Dictionary.end()){
-            Particle.publish("process.err3", i.data());
-            break;
-        }
-        auto id = id_it->second;
+        auto id = iot::Identifier(f.get_name());
 
         auto pf_it = InstructionSet.find(id);
         if (pf_it == InstructionSet.end()){

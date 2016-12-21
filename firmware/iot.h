@@ -12,12 +12,32 @@ namespace iot {
 class Identifier {
     public:
     Identifier() = default;
-    Identifier(int id):id(id){};
+    Identifier(String s): id(from_string(s)){}
+
+    // Allows it to be used as a map key.
     bool operator <(const Identifier& rhs) const { return id < rhs.id; }
+
     operator String() const { return String(this->id); };
-    operator int() const { return this->id; };
+    operator unsigned() const { return this->id; };
+
+    static unsigned from_string(String s){
+        std::vector<unsigned> matches;
+        auto c0 = s.charAt(0);
+        for(auto const &word : Identifier::DICTIONARY){
+            if(*word.second != c0){
+                continue;
+            }
+            matches.push_back(word.first);
+        }
+        if(matches.size() == 1){
+            return matches[0];
+        }
+        return 0;
+    }
+
     private:
-        int id;
+        unsigned id;
+        const static std::map<unsigned, char const * const> DICTIONARY;
 };
 
 class Pin {
@@ -111,8 +131,6 @@ class Function {
     int from_vector( std::vector<char>::iterator begin,
                      std::vector<char>::iterator end )
     {
-        auto it = begin;
-
         if(*(begin+0) != this->DELIMS[0]){ return 0; }
         if(*(begin+1) != this->DELIMS[1]){ return 0; }
         //First character of name
@@ -128,9 +146,9 @@ class Function {
         // this->args = String(args_v.data());
 
         this->name = std::vector<char>(delim1,delim2);
-        this->name.push_back(NULL);
+        this->name.push_back(0);
         this->args = std::vector<char>(delim2,delim3);
-        this->args.push_back(NULL);
+        this->args.push_back(0);
 
         return delim3-begin;
     }
