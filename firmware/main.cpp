@@ -10,8 +10,9 @@ const char * HELP =
     "DigitalPort={board_led, led1, led2, led3, sw1, sw2, sw3};" \
     ;
 
-#include "application.h" // Required for Particle.
 #include <vector> // std::vector
+#include "application.h" // Required for Particle.
+#include "tinker.h"
 
 // Defines constants for Particle Ecosystem.
 #include "global.h"
@@ -35,15 +36,19 @@ auto MainDPort = iot::DigitalPort(std::vector<iot::DigitalPin>{board_led, led1, 
 
 auto app = iot::App(HELP, MainDPort);
 
-const std::map<unsigned, char const* const> iot::Identifier::DICTIONARY = {
-    {0,"null"}, {1,"get"}, {2,"set"}
+const std::map<unsigned, char const *const> iot::Identifier::DICTIONARY = {
+    {0, "null"}, {1, "DR"}, {2, "DW"}, {3, "AR"}, {4, "AW"},{5, "get"}, {6, "set"},
 };
 
 // Function object that accepts String and returns int.
 // Similar to one expected for Particle's Cloud Functions.
 std::map<unsigned, std::function<int(String)>> InstructionSet = {
-    {1, std::bind(&iot::App::PF_get, &app, std::placeholders::_1)},
-    {2, std::bind(&iot::App::PF_set, &app, std::placeholders::_1)}
+    {1, iot::particle::tinkerDigitalRead},
+    {2, iot::particle::tinkerDigitalWrite},
+    {3, iot::particle::tinkerAnalogRead},
+    {4, iot::particle::tinkerAnalogWrite},
+    {5, std::bind(&iot::App::PF_get, &app, std::placeholders::_1)},
+    {6, std::bind(&iot::App::PF_set, &app, std::placeholders::_1)}
 };
 
 void process(iot::Stream &in, iot::Stream &o);
@@ -104,5 +109,4 @@ void process(iot::Stream &i, iot::Stream &o) {
         o.write(String(pf(f.get_args())));
     }
 }
-
 

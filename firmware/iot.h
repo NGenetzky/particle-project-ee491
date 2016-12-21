@@ -31,6 +31,13 @@ class Identifier {
         }
         if(matches.size() == 1){
             return matches[0];
+        } else {
+            for (const auto m : matches){
+                auto p = DICTIONARY.find(m);
+                if(s.equals( p->second )){
+                    return p->first;
+                }
+            }
         }
         return 0;
     }
@@ -143,7 +150,7 @@ class Function {
 
         this->name = std::vector<char>(delim1,delim2);
         this->name.push_back(0);
-        this->args = std::vector<char>(delim2,delim3);
+        this->args = std::vector<char>(delim2+1,delim3);
         this->args.push_back(0);
 
         return delim3-begin+1; // +1 so we throw away delim3
@@ -278,6 +285,8 @@ class App {
         this->get_stdout_p();
         this->setup_PV_stdout();
 
+        this->setup_PF_tinker();
+
         return 0;
     }
     void loop(){
@@ -313,6 +322,15 @@ class App {
     char* get_stdout_p(){
         this->stdout_p = this->std_out.data();
         return this->stdout_p;
+    }
+
+    bool setup_PF_tinker(){
+        //Register all the Tinker functions
+        Particle.function("digitalread", &App::PF_cin, this);
+        Particle.function("digitalwrite", &App::PF_cin, this);
+
+        Particle.function("analogread", &App::PF_cin, this);
+        Particle.function("analogwrite", &App::PF_cin, this);
     }
 
     bool setup_PV_help(){ return Particle.variable("help", this->HELP); }
