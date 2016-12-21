@@ -4,6 +4,8 @@
 #include <map>
 #include <bitset>
 #include <functional>
+#include <algorithm>
+// #include <iostream>
 
 namespace iot {
 
@@ -11,10 +13,9 @@ class Identifier {
     public:
     Identifier() = default;
     Identifier(int id):id(id){};
-    bool operator <(const Identifier& rhs) const {
-        return id < rhs.id;
-    }
+    bool operator <(const Identifier& rhs) const { return id < rhs.id; }
     operator String() const { return String(this->id); };
+    operator int() const { return this->id; };
     private:
         int id;
 };
@@ -100,59 +101,46 @@ class Function {
     public:
     Function() = default;
 
-    // Returns number of bytes read to create function.
-    // Returns 0 bytes if no function was read.
-    int from_vector(std::vector<char> v, unsigned offset=0){
-        unsigned i = offset;
-        std::vector<char> n;
-        std::vector<char> a;
-        
-        // Check that it has a function
-        if(v[i] != DELIMS[0]){
-            return 0;
-        } else if(v[i+1] != DELIMS[1]){
-            return 0;
-        }
-        
-        // Parse name.
-        for(i = i+2; i<v.size(); i++) {
-            auto c = v[i];
-            if(c == DELIMS[2]){
-                i++;
-                break;
-            } else if(c == DELIMS[3]){
-                // No arguments were supplied.
-                n.push_back('\0');
-                this->name = String(n.data());
-                return i - offset;
-            } else {
-                n.push_back(c);
-            }
-        }
-        
-        // Parse arguments
-        for(; i<v.size(); i++) {
-            auto c = v[i];
-            if(c == DELIMS[3]){
-                n.push_back('\0');
-                this->name = String(n.data());
-                a.push_back('\0');
-                this->args = String(a.data());
-                return i - offset;
-            } else {
-                a.push_back(c);
-            }
-        }
-        return 0;
+    String get_name(){ 
+        return this->name.data();
+    }
+    String get_args(){
+        return this->args.data();
+    };
+
+    int from_vector( std::vector<char>::iterator begin,
+                     std::vector<char>::iterator end )
+    {
+        auto it = begin;
+
+        if(*(begin+0) != this->DELIMS[0]){ return 0; }
+        if(*(begin+1) != this->DELIMS[1]){ return 0; }
+        //First character of name
+        auto delim1 = begin+2;
+        // Character after function
+        auto delim3 = std::find(delim1, end, this->DELIMS[3]);
+        // Character after name. If not space then delim2=delim3;
+        auto delim2 = std::find(delim1, delim3, this->DELIMS[2]);
+
+        // auto name_v = std::vector<char>(delim1,delim2);
+        // auto args_v = std::vector<char>(delim2,delim3);
+        // this->name = String(name_v.data());
+        // this->args = String(args_v.data());
+
+        this->name = std::vector<char>(delim1,delim2);
+        this->name.push_back(NULL);
+        this->args = std::vector<char>(delim2,delim3);
+        this->args.push_back(NULL);
+
+        return delim3-begin;
     }
 
-    // int operator() (String args);
-
-    String name;
-    String args;
-
     private:
-        const char *DELIMS = "$( )";  //{'$', '(', ' ', ')'};
+        //{'$', '(',NAME,')'};
+        //{'$', '(',NAME,' ',ARGS, ')'};
+        const char *DELIMS = "$( )";
+        std::vector<char> name;
+        std::vector<char> args;
 };
 
 
@@ -206,9 +194,10 @@ class Stream {
     }
 
     int read(Function &f){
-        auto rv = f.from_vector(this->v, this->read_cursor);
-        this->read_cursor += rv;
-        return rv;
+        auto begin = this->v.begin()+ this->read_cursor;
+        auto consumed = f.from_vector(begin, this->v.end());
+        this->read_cursor += consumed;
+        return consumed;
     }
 
     // Returns the next byte (character) of incoming serial data without

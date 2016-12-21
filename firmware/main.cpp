@@ -35,14 +35,16 @@ auto MainDPort = iot::DigitalPort(std::vector<iot::DigitalPin>{board_led, led1, 
 
 auto app = iot::App(HELP, MainDPort);
 
-std::map<String, iot::Identifier> StringId = {
-    {String("get"), iot::Identifier(1)},
-    {String("set"), iot::Identifier(2)}
+std::map<String, unsigned> Dictionary = {
+    {String("get"), 1},
+    {String("set"), 2}
 };
-std::map<iot::Identifier, iot::PF_f> IdPF = {
-    {iot::Identifier(1), std::bind(&iot::App::PF_get, &app, std::placeholders::_1)},
-    {iot::Identifier(2), std::bind(&iot::App::PF_set, &app, std::placeholders::_1)}
+std::map<unsigned, iot::PF_f> InstructionSet = {
+    {1, std::bind(&iot::App::PF_get, &app, std::placeholders::_1)},
+    {2, std::bind(&iot::App::PF_set, &app, std::placeholders::_1)}
 };
+// auto PF_get = iot::Identity<iot::PF_f> {1, std::bind(&iot::App::PF_get, &app, std::placeholders::_1)};
+// auto PF_set = iot::Identity<iot::PF_f> {2, std::bind(&iot::App::PF_set, &app, std::placeholders::_1)};
 
 void process(iot::Stream &in, iot::Stream &o);
 
@@ -88,24 +90,23 @@ void process(iot::Stream &i, iot::Stream &o) {
             Particle.publish("process.err2", i.data());
             break;
         }
-        // Particle.publish(f.name, f.args);
+        Particle.publish(f.get_name(), f.get_args());
 
-        auto id_it = StringId.find(f.name);
-        if (id_it == StringId.end()){
+        auto id_it = Dictionary.find(f.get_name());
+        if (id_it == Dictionary.end()){
             Particle.publish("process.err3", i.data());
             break;
         }
         auto id = id_it->second;
-        Particle.publish(f.name, String(id));
 
-        auto pf_it = IdPF.find(id);
-        if (pf_it == IdPF.end()){
+        auto pf_it = InstructionSet.find(id);
+        if (pf_it == InstructionSet.end()){
             Particle.publish("process.err4", i.data());
             break;
         }
         auto pf = pf_it->second;
 
-        auto rv = pf(f.args);
+        auto rv = pf(f.get_args());
         auto rv_str = String(rv);
         auto len = rv_str.length();
         for (unsigned i = 0; i<len; i++){
