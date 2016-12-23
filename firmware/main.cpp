@@ -19,8 +19,9 @@ const char * HELP =
 
 // Provides access to functionality that is built into the board.
 #include "board.h"
+#include "photon.h" // Particle Photon board
+#include "freenove.h" // Freenove smart car remote
 
-#include "iot.h"
 #include "App.h"
 #include "DigitalPin.h"
 #include "DigitalPort.h"
@@ -31,13 +32,15 @@ const char * HELP =
 
 int loop_count = 0;
 
-auto board_led = iot::DigitalPin(iot::board::board_led);
-auto led1 = iot::DigitalPin(iot::board::LED1);
-auto led2 = iot::DigitalPin(iot::board::LED2);
-auto led3 = iot::DigitalPin(iot::board::LED3);
-auto sw1 = iot::DigitalPin(iot::board::SW1);
-auto sw2 = iot::DigitalPin(iot::board::SW2);
-auto sw3 = iot::DigitalPin(iot::board::SW3);
+auto board_led = iot::DigitalPin(iot::photon::pins::board_led);
+
+using namespace iot::freenove;
+auto  led1  =  iot::DigitalPin(pins::LED1);
+auto  led2  =  iot::DigitalPin(pins::LED2);
+auto  led3  =  iot::DigitalPin(pins::LED3);
+auto  sw1   =  iot::DigitalPin(pins::SW1);
+auto  sw2   =  iot::DigitalPin(pins::SW2);
+auto  sw3   =  iot::DigitalPin(pins::SW3);
 
 auto MainDPort = iot::DigitalPort(std::vector<iot::DigitalPin>{board_led, led1, led2, led3, sw1, sw2, sw3});
 
@@ -90,6 +93,8 @@ void setup(){
 // for too long (like more than 5 seconds), or weird things can happen.
 void loop(){
     app.loop();
+
+    process(app.std_in, app.std_out);
 
     loop_count++;
 }

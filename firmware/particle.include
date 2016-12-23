@@ -3,6 +3,7 @@ DigitalPin.h
 DigitalPort.h
 AppDigitalPort.h
 AppStdin.h
+AppStdout.h
 Identifier.h
 Function.h
 Pin.h
@@ -10,7 +11,8 @@ Stream.h
 board.cpp
 board.h
 global.h
-iot.h
+freenove.h
+photon.h
 main.cpp
 tinker.cpp
 tinker.h
