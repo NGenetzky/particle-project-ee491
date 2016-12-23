@@ -30,6 +30,6 @@ test_cin_stdout(){
 # Main
 set -x
 
-# flash_device
+flash_device
 # test_digitalport
 test_cin_stdout

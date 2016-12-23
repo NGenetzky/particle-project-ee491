@@ -2,6 +2,7 @@ App.h
 DigitalPin.h
 DigitalPort.h
 AppDigitalPort.h
+AppStdin.h
 Identifier.h
 Function.h
 Pin.h

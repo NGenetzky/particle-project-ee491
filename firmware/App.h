@@ -5,6 +5,9 @@
 #define DIGITALPORT_EN 1
 #include "AppDigitalPort.h"
 
+#define STDIN_EN 1
+#include "AppStdin.h"
+
 namespace iot {
 
 class App {
@@ -21,6 +24,7 @@ class App {
     int setup(){
         this->setup_PV_help();
         DIGITALPORT_SETUP
+        STDIN_SETUP
         return 0;
     }
 
@@ -33,6 +37,7 @@ class App {
     public:
 
     DIGITALPORT_APP
+    STDIN_APP
 };
 
 // iot

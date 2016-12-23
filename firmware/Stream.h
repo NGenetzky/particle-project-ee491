@@ -12,7 +12,22 @@ class Stream {
     int setup() {
         this->v.resize(0);
         this->v.reserve(this->RESERVED_SPACE);
+        this->data(); // sets this->char_p
         return 0;
+    }
+    bool setup_PV_data(char const * const name){
+        return Particle.variable(name, this->char_p);
+    }
+    bool setup_PF_in(char const * const name){
+        return Particle.function(name, &Stream::PF_in, this);
+    }
+
+    int PF_in(String args){
+        auto len = args.length();
+        for (unsigned i =0; i<len; i++){
+            this->write(args.charAt(i));
+        }
+        return this->available();
     }
 
     // Get the number of bytes (characters) available for reading from the
@@ -85,7 +100,8 @@ class Stream {
 
     // WARNING: This pointer becomes invalid if the vector resizes
     char *data(){
-        return this->v.data();
+        this->char_p = this->v.data();
+        return this->char_p;
     }
 
     void clear() {
@@ -99,9 +115,9 @@ class Stream {
 
     private:
         const unsigned RESERVED_SPACE=255;
-
-        std::vector<char> v = std::vector<char>{RESERVED_SPACE, 0};
+        std::vector<char> v = std::vector<char>(RESERVED_SPACE, char('\0'));
         unsigned read_cursor=0;
+        char *char_p = nullptr;
 };
 
 // iot
