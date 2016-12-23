@@ -21,6 +21,13 @@ const char * HELP =
 #include "board.h"
 
 #include "iot.h"
+#include "App.h"
+#include "DigitalPin.h"
+#include "DigitalPort.h"
+#include "Identifier.h"
+#include "Function.h"
+#include "Pin.h"
+#include "Stream.h"
 
 int loop_count = 0;
 
