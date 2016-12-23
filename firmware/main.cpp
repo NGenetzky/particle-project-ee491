@@ -41,7 +41,8 @@ auto sw3 = iot::DigitalPin(iot::board::SW3);
 
 auto MainDPort = iot::DigitalPort(std::vector<iot::DigitalPin>{board_led, led1, led2, led3, sw1, sw2, sw3});
 
-auto app = iot::App(HELP, MainDPort);
+auto app = iot::App(HELP);
+// auto app = iot::App(HELP, MainDPort);
 
 const std::map<unsigned, char const *const> iot::Identifier::DICTIONARY = {
     {0, "null"}, {1, "DR"}, {2, "DW"}, {3, "AR"}, {4, "AW"},{5, "get"}, {6, "set"},
@@ -54,8 +55,8 @@ std::map<unsigned, std::function<int(String)>> InstructionSet = {
     {2, iot::particle::tinkerDigitalWrite},
     {3, iot::particle::tinkerAnalogRead},
     {4, iot::particle::tinkerAnalogWrite},
-    {5, std::bind(&iot::App::PF_get, &app, std::placeholders::_1)},
-    {6, std::bind(&iot::App::PF_set, &app, std::placeholders::_1)}
+    // {5, std::bind(&iot::App::PF_get, &app, std::placeholders::_1)},
+    // {6, std::bind(&iot::App::PF_set, &app, std::placeholders::_1)}
 };
 
 void process(iot::Stream &in, iot::Stream &o);
@@ -72,6 +73,7 @@ void setup(){
     // src: https://docs.particle.io/reference/firmware/photon/#analogread-adc-
     // In other words, don't do: pinMode(analog_pin, INPUT);
 
+    app.add(MainDPort);
     app.setup();
 
     delay(500);
@@ -83,8 +85,6 @@ void setup(){
 // for too long (like more than 5 seconds), or weird things can happen.
 void loop(){
     app.loop();
-
-    process(app.std_in, app.std_out);
 
     loop_count++;
 }
@@ -102,6 +102,7 @@ void process(iot::Stream &i, iot::Stream &o) {
             Particle.publish("process.err2", i.data());
             break;
         }
+
         Particle.publish(f.get_name(), f.get_args());
 
         auto id = iot::Identifier(f.get_name());

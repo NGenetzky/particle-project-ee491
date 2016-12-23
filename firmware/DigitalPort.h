@@ -18,13 +18,21 @@ class DigitalPort {
             d.setup();
         }
 
+        this->setup_PF_set();
+        this->setup_PF_get();
+
         Particle.function("digitalread", &DigitalPort::tinkerDigitalRead, this);
         Particle.function("digitalwrite", &DigitalPort::tinkerDigitalWrite, this);
 
+
         return 0;
     }
+    bool setup_PF_set() { return Particle.function( "set", &DigitalPort::PF_set, this ); }
+    bool setup_PF_get() { return Particle.function( "get", &DigitalPort::PF_get, this ); }
+
     int add(DigitalPin o){this->dpins.push_back(o); return 0; } ;
     
+    int PF_get(String args){ return this->get(); }
     int get(){
         auto end = this->dpins.size();
         auto bits = std::bitset<16>(0);
@@ -34,6 +42,7 @@ class DigitalPort {
         return bits.to_ulong();
     }
     
+    int PF_set(String args){ return this->set(args.toInt()); }
     int set(uint16_t v){
         auto end = this->dpins.size();
         auto bits = std::bitset<16>(v);

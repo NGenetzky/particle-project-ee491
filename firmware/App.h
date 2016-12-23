@@ -1,8 +1,9 @@
 #pragma once
 #include "application.h" // Required for Particle.
-#include "DigitalPin.h"
-#include "DigitalPort.h"
 #include "Stream.h"
+
+#define DIGITALPORT_EN 1
+#include "AppDigitalPort.h"
 
 namespace iot {
 
@@ -10,15 +11,19 @@ class App {
     public:
     App(const char *HELP): HELP(HELP)
     { };
-    App(const char *HELP, DigitalPort dport): HELP(HELP), dport(dport)
-    { };
+#if DIGITALPORT_EN == 1
+    App( const char *HELP, DIGITALPORT_TYPE digitalport )
+        : HELP( HELP ), DIGITALPORT_VAR( digitalport ){};
+#endif
 
     int setup(){
-        this->dport.setup();
+#if DIGITALPORT_EN == 1
+        this->DIGITALPORT_VAR.setup();
+#endif
 
         this->setup_PV_help();
-        this->setup_PF_set();
-        this->setup_PF_get();
+        // this->setup_PF_set();
+        // this->setup_PF_get();
 
         this->std_in.setup();
         this->get_stdin_p();
@@ -37,18 +42,16 @@ class App {
 
     }
 
-    int add(DigitalPin dpin){this->dport.add(dpin); return 0; } ;
-    int add(DigitalPort dport){this->dport = dport; return 0; } ;
 
-    int PF_set(String args){ return this->set(args.toInt()); }
-    int set(uint16_t v){
-        return this->dport.set(v);
-    }
+    // int PF_set(String args){ return this->set(args.toInt()); }
+    // int set(uint16_t v){
+    //     return this->dport.set(v);
+    // }
 
-    int PF_get(String args){ return this->get(); }
-    int get(){
-        return this->dport.get();
-    }
+    // int PF_get(String args){ return this->get(); }
+    // int get(){
+    //     return this->dport.get();
+    // }
 
     char* get_stdin_p(){
         this->stdin_p = this->std_in.data();
@@ -73,18 +76,15 @@ class App {
         // Particle.function("digitalread", &App::PF_cin, this);
         // Particle.function("digitalwrite", &App::PF_cin, this);
 
-        Particle.function("analogread", &App::PF_cin, this);
-        Particle.function("analogwrite", &App::PF_cin, this);
+        // Particle.function("analogread", &App::PF_cin, this);
+        // Particle.function("analogwrite", &App::PF_cin, this);
         return true;
     }
 
     bool setup_PV_help(){ return Particle.variable("help", this->HELP); }
     bool setup_PV_stdin(){ return Particle.variable("stdin", this->stdin_p); }
     bool setup_PV_stdout(){ return Particle.variable("stdout", this->stdout_p); }
-    bool setup_PF_set(){ return Particle.function("set", &App::PF_set, this); }
-    bool setup_PF_get(){ return Particle.function("get", &App::PF_get, this); }
     bool setup_PF_cin(){ return Particle.function("cin", &App::PF_cin, this); }
-
 
     private:
         const char *HELP;
@@ -93,7 +93,10 @@ class App {
     public:
         iot::Stream std_in;
         iot::Stream std_out;
-        DigitalPort dport;
+
+#if DIGITALPORT_EN == 1
+        DIGITALPORT_APP
+#endif
 };
 
 // iot
