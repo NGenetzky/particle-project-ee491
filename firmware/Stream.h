@@ -15,9 +15,11 @@ class Stream {
         this->data(); // sets this->char_p
         return 0;
     }
+
     bool setup_PV_data(char const * const name){
         return Particle.variable(name, this->char_p);
     }
+
     bool setup_PF_in(char const * const name){
         return Particle.function(name, &Stream::PF_in, this);
     }
@@ -117,6 +119,8 @@ class Stream {
         const unsigned RESERVED_SPACE=255;
         std::vector<char> v = std::vector<char>(RESERVED_SPACE, char('\0'));
         unsigned read_cursor=0;
+
+        // WARNING: This pointer becomes invalid if the vector resizes
         char *char_p = nullptr;
 };
 

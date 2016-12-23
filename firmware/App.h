@@ -1,12 +1,14 @@
 #pragma once
 #include "application.h" // Required for Particle.
-#include "Stream.h"
 
 #define DIGITALPORT_EN 1
 #include "AppDigitalPort.h"
 
 #define STDIN_EN 1
 #include "AppStdin.h"
+
+#define STDOUT_EN 1
+#include "AppStdout.h"
 
 namespace iot {
 
@@ -25,10 +27,14 @@ class App {
         this->setup_PV_help();
         DIGITALPORT_SETUP
         STDIN_SETUP
+        STDOUT_SETUP
         return 0;
     }
 
-    int loop(){}
+    int loop()
+    {
+        return 0;
+    }
 
     bool setup_PV_help(){ return Particle.variable("help", this->HELP); }
 
@@ -38,6 +44,7 @@ class App {
 
     DIGITALPORT_APP
     STDIN_APP
+    STDOUT_APP
 };
 
 // iot
