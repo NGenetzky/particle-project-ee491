@@ -127,6 +127,7 @@ class DigitalPort {
     int digitalWrite(int pin, bool value){
         return this->dpins[pin].set(value);
     }
+
     /*******************************************************************************
     * Function Name  : tinkerDigitalRead
     * Description    : Reads the digital value of a given pin
