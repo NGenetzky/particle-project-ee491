@@ -22,6 +22,8 @@ class Identifier {
 
     static unsigned from_string(String s){
         std::vector<unsigned> matches;
+
+        // Find all words that start with the same letter as s.
         auto c0 = s.charAt(0);
         for(auto const &word : Identifier::DICTIONARY){
             if(*word.second != c0){
@@ -29,6 +31,7 @@ class Identifier {
             }
             matches.push_back(word.first);
         }
+
         if(matches.size() == 1){
             return matches[0];
         } else {

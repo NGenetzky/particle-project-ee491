@@ -42,7 +42,8 @@ auto  sw1   =  iot::DigitalPin(pins::SW1);
 auto  sw2   =  iot::DigitalPin(pins::SW2);
 auto  sw3   =  iot::DigitalPin(pins::SW3);
 
-auto MainDPort = iot::DigitalPort(std::vector<iot::DigitalPin>{board_led, led1, led2, led3, sw1, sw2, sw3});
+auto MainDPort = iot::DigitalPort(
+    std::vector<iot::DigitalPin>{board_led, led1, led2, led3, sw1, sw2, sw3} );
 
 // auto app = iot::App(HELP);
 auto app = iot::App(HELP, MainDPort);
@@ -64,8 +65,8 @@ std::map<unsigned, std::function<int(String)>> InstructionSet = {
     {2, iot::particle::tinkerDigitalWrite},
     {3, iot::particle::tinkerAnalogRead},
     {4, iot::particle::tinkerAnalogWrite},
-    // {5, std::bind(&iot::App::PF_get, &app, std::placeholders::_1)},
-    // {6, std::bind(&iot::App::PF_set, &app, std::placeholders::_1)}
+    {5, std::bind(&iot::DigitalPort::PF_get, &app.dport, std::placeholders::_1)},
+    {6, std::bind(&iot::DigitalPort::PF_set, &app.dport, std::placeholders::_1)}
 };
 
 void process(iot::Stream &in, iot::Stream &o);

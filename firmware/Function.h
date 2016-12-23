@@ -1,6 +1,7 @@
 #pragma once
 #include "application.h" // Required for Particle.
 #include <vector>
+#include <algorithm>
 
 namespace iot {
 

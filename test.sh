@@ -18,12 +18,13 @@ test_digitalport(){
 }
 
 test_cin_stdout(){
-    particle call Logan cin "\$(set 15)"
-    # particle get Logan stdin
+    particle call Logan cin "\$(DW D7=HIGH)"
     particle get Logan stdout
 
-    particle call Logan cin "\$(get)"
-    # particle get Logan stdin
+    particle call Logan cin "\$(DR D7)"
+    particle get Logan stdout
+
+    particle call Logan cin "\$(DR D4)"
     particle get Logan stdout
 }
 
@@ -31,5 +32,5 @@ test_cin_stdout(){
 set -x
 
 flash_device
-# test_digitalport
+test_digitalport
 test_cin_stdout
