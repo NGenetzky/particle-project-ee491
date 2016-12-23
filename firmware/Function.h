@@ -2,18 +2,31 @@
 #include "application.h" // Required for Particle.
 #include <vector>
 #include <algorithm>
+#include "Identifier.h"
 
 namespace iot {
 
+// TODO template for return type
 class Function {
     public:
     Function() = default;
+    Function( std::function<int()> f ) : f( f ) {}
+
+    int operator()(){
+        return this->f();
+    }
 
     String get_name(){ 
         return this->name.data();
     }
+
     String get_args(){
         return this->args.data();
+    };
+
+    bool  bind(std::function<int(String)> pf){
+        this->f = std::bind(pf, this->get_args());
+        return true;
     };
 
     int from_vector( std::vector<char>::iterator begin,
@@ -47,7 +60,24 @@ class Function {
         const char *DELIMS = "$( )";
         std::vector<char> name;
         std::vector<char> args;
+        std::function<int()> f = [this]() -> int {
+            Particle.publish( this->get_name(), this->get_args() );
+            return -1;
+        };
 };
+
+bool find_function( std::map<unsigned, std::function<int( String )>> const &ops,
+                    Function &f ){
+    auto id = iot::Identifier(f.get_name());
+
+    auto pf_it = ops.find(id);
+    if (pf_it == ops.end()){
+        return false;
+    }
+    auto pf = pf_it->second;
+    f.bind(pf);
+    return true;
+}
 
 // iot
 }

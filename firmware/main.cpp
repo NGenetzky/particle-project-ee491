@@ -114,17 +114,23 @@ void process(iot::Stream &i, iot::Stream &o) {
             break;
         }
 
-        Particle.publish(f.get_name(), f.get_args());
-
-        auto id = iot::Identifier(f.get_name());
-
-        auto pf_it = InstructionSet.find(id);
-        if (pf_it == InstructionSet.end()){
+        if(find_function(InstructionSet, f)){
+            o.write(String(f()));
+        } else {
             Particle.publish("process.err4", i.data());
-            break;
         }
-        auto pf = pf_it->second;
 
-        o.write(String(pf(f.get_args())));
+        // Particle.publish(f.get_name(), f.get_args());
+
+        // auto id = iot::Identifier(f.get_name());
+
+        // auto pf_it = InstructionSet.find(id);
+        // if (pf_it == InstructionSet.end()){
+        //     Particle.publish("process.err4", i.data());
+        //     break;
+        // }
+        // auto pf = pf_it->second;
+
+        // o.write(String(pf(f.get_args())));
     }
 }
