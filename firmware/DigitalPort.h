@@ -17,18 +17,30 @@ class DigitalPort {
         for( auto &d : this->dpins ){
             d.setup();
         }
-
-        this->setup_PF_set();
-        this->setup_PF_get();
-
-        Particle.function("digitalread", &DigitalPort::tinkerDigitalRead, this);
-        Particle.function("digitalwrite", &DigitalPort::tinkerDigitalWrite, this);
-
-
         return 0;
     }
-    bool setup_PF_set() { return Particle.function( "set", &DigitalPort::PF_set, this ); }
-    bool setup_PF_get() { return Particle.function( "get", &DigitalPort::PF_get, this ); }
+
+    bool setup_PF_set()
+    {
+        return Particle.function( "set", &DigitalPort::PF_set, this );
+    }
+
+    bool setup_PF_get()
+    {
+        return Particle.function( "get", &DigitalPort::PF_get, this );
+    }
+
+    bool setup_PF_digitalread()
+    {
+        return Particle.function( "digitalread",
+                                  &DigitalPort::PF_tinkerDigitalRead, this );
+    }
+
+    bool setup_PF_digitalwrite()
+    {
+        return Particle.function( "digitalread",
+                                  &DigitalPort::PF_tinkerDigitalWrite, this );
+    }
 
     int add(DigitalPin o){this->dpins.push_back(o); return 0; } ;
     
@@ -61,14 +73,14 @@ class DigitalPort {
     }
 
     /*******************************************************************************
-    * Function Name  : tinkerDigitalRead
+    * Function Name  : PF_tinkerDigitalRead
     * Description    : Reads the digital value of a given pin
     * Input          : Pin
     * Output         : None.
     * Return         : Value of the pin (0 or 1) in INT type
                         Returns a negative number on failure
     *******************************************************************************/
-    int tinkerDigitalRead(String pin)
+    int PF_tinkerDigitalRead(String pin)
     {
         //convert ascii to integer
         int pinNumber = pin.charAt(1) - '0';
@@ -103,13 +115,13 @@ class DigitalPort {
     }
 
     /*******************************************************************************
-    * Function Name  : tinkerDigitalWrite
+    * Function Name  : PF_tinkerDigitalWrite
     * Description    : Sets the specified pin HIGH or LOW
     * Input          : Pin and value
     * Output         : None.
     * Return         : 1 on success and a negative number on failure
     *******************************************************************************/
-    int tinkerDigitalWrite(String command)
+    int PF_tinkerDigitalWrite(String command)
     {
         bool value = 0;
         //convert ascii to integer

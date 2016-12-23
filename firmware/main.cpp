@@ -41,11 +41,17 @@ auto sw3 = iot::DigitalPin(iot::board::SW3);
 
 auto MainDPort = iot::DigitalPort(std::vector<iot::DigitalPin>{board_led, led1, led2, led3, sw1, sw2, sw3});
 
-auto app = iot::App(HELP);
-// auto app = iot::App(HELP, MainDPort);
+// auto app = iot::App(HELP);
+auto app = iot::App(HELP, MainDPort);
 
 const std::map<unsigned, char const *const> iot::Identifier::DICTIONARY = {
-    {0, "null"}, {1, "DR"}, {2, "DW"}, {3, "AR"}, {4, "AW"},{5, "get"}, {6, "set"},
+    {0, "null"},
+    {1, "DR"},
+    {2, "DW"},
+    {3, "AR"},
+    {4, "AW"},
+    {5, "get"},
+    {6, "set"},
 };
 
 // Function object that accepts String and returns int.
@@ -73,7 +79,6 @@ void setup(){
     // src: https://docs.particle.io/reference/firmware/photon/#analogread-adc-
     // In other words, don't do: pinMode(analog_pin, INPUT);
 
-    app.add(MainDPort);
     app.setup();
 
     delay(500);
@@ -117,4 +122,3 @@ void process(iot::Stream &i, iot::Stream &o) {
         o.write(String(pf(f.get_args())));
     }
 }
-
