@@ -10,6 +10,7 @@ class Stream {
     Stream() = default;
     
     int setup() {
+        this->v.resize(0);
         this->v.reserve(this->RESERVED_SPACE);
         return 0;
     }
@@ -97,9 +98,10 @@ class Stream {
     }
 
     private:
-        std::vector<char> v = {};
-        unsigned read_cursor=0;
         const unsigned RESERVED_SPACE=255;
+
+        std::vector<char> v = std::vector<char>{RESERVED_SPACE, 0};
+        unsigned read_cursor=0;
 };
 
 // iot
