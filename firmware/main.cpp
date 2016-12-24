@@ -69,7 +69,8 @@ std::map<unsigned, std::function<int(String)>> InstructionSet = {
     {6, std::bind(&iot::DigitalPort::PF_set, &app.dport, std::placeholders::_1)}
 };
 
-void process(iot::Stream &in, iot::Stream &o);
+void process( iot::Stream &i, iot::Stream &o,
+              std::map<unsigned, std::function<int( String )>> ops );
 
 void setup(){
 
@@ -95,42 +96,61 @@ void setup(){
 void loop(){
     app.loop();
 
-    process(app.std_in, app.std_out);
+    if(app.std_in.available()){
+        process(app.std_in, app.std_out, InstructionSet);
+    }
+    if(app.std_out.available()){
+        Serial.write(app.std_out.read());
+    }
 
     loop_count++;
 }
 
-void process(iot::Stream &i, iot::Stream &o) {
+// Called whenever there is data to be read from a serial peripheral.
+// The serialEvent functions are called by the system as part of the
+// application loop. Since these are an extension of the application loop, it
+// is ok to call any functions at you would also call from loop().
+void serialEvent()
+{
+    app.std_in.write(Serial.read());
+}
+
+// Will skip until first function.
+// Will parse the function from input stream, call it and then put result on
+// output stream.
+void process( iot::Stream &i, iot::Stream &o,
+              std::map<unsigned, std::function<int( String )>> ops )
+{
     iot::Function f;
-    while(i.available()){
-        if(i.peek() != '$'){
-            Particle.publish("process.err1", String(int(i.peek())));
-            i.read(); // throw it away
-            continue; // restart the loop.
+    auto start = i.find('$');
+    if ( start == -1 ) {
+        // No start character found.
+        return;
+    } else if ( 0 < start ) {
+        // Discard characters before start.
+        auto thrown = std::vector<char>();
+        for ( auto x = start; 0 < x; x-- ) {
+            auto c = i.read();
+            thrown.push_back(c);
         }
-        // Attempt to read function from stream
-        if( !i.read(f) ){
-            Particle.publish("process.err2", i.data());
-            break;
-        }
+        thrown.push_back('\0');
+        Particle.publish("process.err1", String(thrown.data()));
+    }
 
-        if(find_function(InstructionSet, f)){
-            o.write(String(f()));
-        } else {
-            Particle.publish("process.err4", i.data());
-        }
+    auto end = i.find(')');
+    if ( end == -1 ) { return; }
 
-        // Particle.publish(f.get_name(), f.get_args());
+    // Attempt to read function from stream
+    if( !i.read(f) ){
+        Particle.publish("process.err2", i.data());
+        return;
+    }
 
-        // auto id = iot::Identifier(f.get_name());
-
-        // auto pf_it = InstructionSet.find(id);
-        // if (pf_it == InstructionSet.end()){
-        //     Particle.publish("process.err4", i.data());
-        //     break;
-        // }
-        // auto pf = pf_it->second;
-
-        // o.write(String(pf(f.get_args())));
+    if(find_function(ops, f)){
+        // Write the String representation of the return value followed by \n.
+        o.write(String(f()));
+        o.write("\n");
+    } else {
+        Particle.publish("process.err4", i.data());
     }
 }

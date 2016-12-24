@@ -48,7 +48,9 @@ class Function {
 
         this->name = std::vector<char>(delim1,delim2);
         this->name.push_back(0);
-        this->args = std::vector<char>(delim2+1,delim3);
+        if(delim2 != delim3){
+            this->args = std::vector<char>(delim2+1,delim3);
+        }
         this->args.push_back(0);
 
         return delim3-begin+1; // +1 so we throw away delim3

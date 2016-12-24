@@ -26,11 +26,17 @@ test_cin_stdout(){
 
     particle call Logan cin "\$(DR D4)"
     particle get Logan stdout
+
+    particle call Logan cin "\$(set 15)"
+    particle get Logan stdout
+
+    particle call Logan cin "\$(get)"
+    particle get Logan stdout
 }
 
 # Main
 set -x
 
 flash_device
-test_digitalport
+# test_digitalport
 test_cin_stdout

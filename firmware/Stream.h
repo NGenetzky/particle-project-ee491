@@ -8,7 +8,7 @@ namespace iot {
 class Stream {
     public:
     Stream() = default;
-    
+
     int setup() {
         this->v.resize(0);
         this->v.reserve(this->RESERVED_SPACE);
@@ -56,8 +56,13 @@ class Stream {
     // len: the length of the buffer
     // write() will return the number of bytes written.
     int write(char value){
+        if( this->RESERVED_SPACE < this->v.size()){
+            return 0;
+        } else {
+
         this->v.push_back(value);
         return 1;
+        }
     }
     // int write(char *values){}
     // int write(char *values, unsigned len){}
@@ -85,6 +90,16 @@ class Stream {
         auto consumed = f.from_vector(begin, this->v.end());
         this->read_cursor += consumed;
         return consumed;
+    }
+
+    int find(char c){
+        auto begin = this->v.begin() + this->read_cursor;
+        auto loc = std::find( begin, this->v.end(), c );
+        if ( loc == this->v.end() ) {
+            return -1;
+        } else {
+            return ( loc - begin );
+        }
     }
 
     // Returns the next byte (character) of incoming serial data without
