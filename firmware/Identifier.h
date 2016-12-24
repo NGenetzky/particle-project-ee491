@@ -46,7 +46,7 @@ class Identifier {
     }
 
     private:
-        unsigned id;
+        unsigned id = 0;
         const static std::map<unsigned, char const * const> DICTIONARY;
 };
 

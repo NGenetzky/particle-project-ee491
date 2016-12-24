@@ -5,9 +5,9 @@
 
 namespace iot {
 
-class Stream {
+class File {
     public:
-    Stream() = default;
+    File() = default;
 
     int setup() {
         this->v.resize(0);
@@ -21,7 +21,7 @@ class Stream {
     }
 
     bool setup_PF_in(char const * const name){
-        return Particle.function(name, &Stream::PF_in, this);
+        return Particle.function(name, &File::PF_in, this);
     }
 
     int PF_in(String args){

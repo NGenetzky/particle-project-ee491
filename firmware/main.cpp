@@ -3,11 +3,10 @@
 
 // Set HELP at compile time with information useful for the end user.
 const char * HELP =
-    "DigitalPort Example:" \
-    "DigitalPort Example:" \
-    "get()=DigitalPort.get();" \
-    "set(v)=DigitalPort.set(v);" \
-    "DigitalPort={board_led, led1, led2, led3, sw1, sw2, sw3};" \
+    "DigitalPort Example:\n" \
+    "get()=DigitalPort.get();\n" \
+    "set(v)=DigitalPort.set(v);\n" \
+    "DigitalPort={board_led, led1, led2, led3, sw1, sw2, sw3};\n" \
     ;
 
 #include <vector> // std::vector
@@ -28,7 +27,7 @@ const char * HELP =
 #include "Identifier.h"
 #include "Function.h"
 #include "Pin.h"
-#include "Stream.h"
+#include "File.h"
 
 int loop_count = 0;
 
@@ -69,7 +68,7 @@ std::map<unsigned, std::function<int(String)>> InstructionSet = {
     {6, std::bind(&iot::DigitalPort::PF_set, &app.dport, std::placeholders::_1)}
 };
 
-void process( iot::Stream &i, iot::Stream &o,
+void process( iot::File &i, iot::File &o,
               std::map<unsigned, std::function<int( String )>> ops );
 
 void setup(){
@@ -118,7 +117,7 @@ void serialEvent()
 // Will skip until first function.
 // Will parse the function from input stream, call it and then put result on
 // output stream.
-void process( iot::Stream &i, iot::Stream &o,
+void process( iot::File &i, iot::File &o,
               std::map<unsigned, std::function<int( String )>> ops )
 {
     iot::Function f;

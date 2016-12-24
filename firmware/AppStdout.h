@@ -1,9 +1,9 @@
 #pragma once
-#include "Stream.h"
+#include "File.h"
 
 // #define STDOUT_EN 1
 
-#define STDOUT_TYPE iot::Stream
+#define STDOUT_TYPE iot::File
 #define STDOUT_VAR std_out
 
 #if STDOUT_EN == 0
