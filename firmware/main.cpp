@@ -82,7 +82,25 @@ std::map<unsigned, std::function<int(String)>> InstructionSet = {
     {6, std::bind(&iot::DigitalPort::PF_set, &app.dport, std::placeholders::_1)}
 };
 
+// auto tinker = iot::Tinker( []( int p, int v ) -> int {
+//     if ( p < iot::Tinker::ANALOG ) {
+//         if ( v == -1 ) {
+//             return MainDPort.digitalRead( p - iot::Tinker::DIGITAL );
+//         } else {
+//             return MainDPort.digitalWrite( p - iot::Tinker::DIGITAL, v );
+//         }
+//     } else {
+//         if ( v == -1 ) {
+//             // return regs.get( p );
+//         } else {
+//             // return regs.set( p, v );
+//         }
+//         return -100;
+//     }
+// } );
+
 void on_timer_0();
+
 void process( iot::File &i, iot::File &o,
               std::map<unsigned, std::function<int( String )>> ops );
 
