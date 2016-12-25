@@ -28,6 +28,7 @@ const char * HELP =
 #include "Function.h"
 #include "Pin.h"
 #include "File.h"
+#include "Register.h"
 
 int loop_count = 0;
 
@@ -44,8 +45,18 @@ auto  sw3   =  iot::DigitalPin(pins::SW3);
 auto MainDPort = iot::DigitalPort(
     std::vector<iot::DigitalPin>{board_led, led1, led2, led3, sw1, sw2, sw3} );
 
+// Analog port for 1+.
+auto t = iot::Register( []() { return millis(); });
+auto d0 = iot::Register( []() { return MainDPort.get(); },
+                         []( int v ) { return MainDPort.set( v ); } );
+auto a0 = iot::Register( []() { return analogRead( A0 ); });
+auto a1 = iot::Register( []() { return analogRead( A1 ); });
+auto a2 = iot::Register( []() { return analogRead( A2 ); });
+auto a3 = iot::Register( []() { return analogRead( A3 ); });
+auto regs = iot::RegisterBank({t, d0, a0,a1,a2,a3});
+
 // auto app = iot::App(HELP);
-auto app = iot::App(HELP, MainDPort);
+auto app = iot::App( HELP, MainDPort );
 
 const std::map<unsigned, char const *const> iot::Identifier::DICTIONARY = {
     {0, "null"},
@@ -68,8 +79,11 @@ std::map<unsigned, std::function<int(String)>> InstructionSet = {
     {6, std::bind(&iot::DigitalPort::PF_set, &app.dport, std::placeholders::_1)}
 };
 
+void on_timer_0();
 void process( iot::File &i, iot::File &o,
               std::map<unsigned, std::function<int( String )>> ops );
+
+Timer timer0(2000, on_timer_0);
 
 void setup(){
 
@@ -85,7 +99,12 @@ void setup(){
 
     app.setup();
 
+    regs.setup();
+    regs.setup_PF_reg();
+    regs.setup_PV_data();
+
     delay(500);
+    timer0.start();
 }
 
 // This routine gets called repeatedly, like once every 5-15 milliseconds.
@@ -95,12 +114,12 @@ void setup(){
 void loop(){
     app.loop();
 
-    if(app.std_in.available()){
-        process(app.std_in, app.std_out, InstructionSet);
-    }
-    if(app.std_out.available()){
-        Serial.write(app.std_out.read());
-    }
+    // if(app.std_in.available()){
+    //     process(app.std_in, app.std_out, InstructionSet);
+    // }
+    // if(app.std_out.available()){
+    //     Serial.write(app.std_out.read());
+    // }
 
     loop_count++;
 }
@@ -111,7 +130,7 @@ void loop(){
 // is ok to call any functions at you would also call from loop().
 void serialEvent()
 {
-    app.std_in.write(Serial.read());
+    // app.std_in.write(Serial.read());
 }
 
 // Will skip until first function.
@@ -152,4 +171,8 @@ void process( iot::File &i, iot::File &o,
     } else {
         Particle.publish("process.err4", i.data());
     }
+}
+
+void on_timer_0(){
+    regs.publish();
 }

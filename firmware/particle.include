@@ -16,3 +16,4 @@ photon.h
 main.cpp
 tinker.cpp
 tinker.h
+Register.h
