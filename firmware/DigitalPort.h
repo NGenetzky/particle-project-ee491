@@ -38,7 +38,7 @@ class DigitalPort {
 
     bool setup_PF_digitalwrite()
     {
-        return Particle.function( "digitalread",
+        return Particle.function( "digitalwrite",
                                   &DigitalPort::PF_tinkerDigitalWrite, this );
     }
 

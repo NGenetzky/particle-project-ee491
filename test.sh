@@ -32,6 +32,9 @@ test_cin_stdout(){
 
     particle call Logan cin "\$(get)"
     particle get Logan stdout
+
+    particle call Logan cin "\$(get)"
+    particle get Logan stdout
 }
 
 # Main
