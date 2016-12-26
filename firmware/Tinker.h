@@ -1,7 +1,7 @@
 #pragma once
 namespace iot {
 
-using TinkerHandler = std::function<bool(int, int &)>;
+using TinkerFunction = std::function<bool(int, int &)>;
 
 class Tinker {
 
@@ -21,9 +21,9 @@ class Tinker {
         static const int SUCCESS = 1;
 
         Tinker() = default;
-        Tinker( std::vector<TinkerHandler> v) : handlers( v ) {}
+        Tinker( std::vector<TinkerFunction> v) : handlers( v ) {}
 
-        int add(TinkerHandler f){
+        int add(TinkerFunction f){
             this->handlers.push_back(f);
             return this->handlers.size();
         }
@@ -128,7 +128,7 @@ class Tinker {
         }
 
     private:
-        std::vector<TinkerHandler> handlers;
+        std::vector<TinkerFunction> handlers;
 };
 
 }

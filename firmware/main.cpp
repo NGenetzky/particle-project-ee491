@@ -32,6 +32,7 @@ const char * HELP =
 #include "Register.h"
 #include "FixedFields.h"
 #include "Tinker.h"
+#include "TinkerDigitalPort.h"
 
 int loop_count = 0;
 
@@ -81,23 +82,6 @@ std::map<unsigned, std::function<int(String)>> InstructionSet = {
     {5, std::bind(&iot::DigitalPort::PF_get, &app.dport, std::placeholders::_1)},
     {6, std::bind(&iot::DigitalPort::PF_set, &app.dport, std::placeholders::_1)}
 };
-
-// auto tinker_digital = []( int p, int &v ) -> bool {
-//     // Handle digital Actions first.
-//     switch ( v ) {
-//         case iot::Tinker::DR:
-//             v = MainDPort.digitalRead( p );
-//             break;
-//         case iot::Tinker::DW0:
-//         case iot::Tinker::DW1:
-//             MainDPort.digitalWrite( p, ( v == iot::Tinker::DW1 ) );
-//             v = iot::Tinker::SUCCESS; // Update the App display
-//             break;
-//         default:
-//             return false;
-//     }
-//     return true;
-// };
 
 auto tinker_ar = []( int p, int &v ) -> bool
 {
@@ -152,7 +136,8 @@ auto tinker_aw  = []( int p, int &v ) -> bool {
     }
 };
 
-auto tinker = iot::Tinker( {MainDPort.tinker_handler(), tinker_ar, tinker_aw} );
+// auto tinker = iot::Tinker( {MainDPort.tinker_handler(), tinker_ar, tinker_aw} );
+auto tinker = iot::Tinker( {TinkerHandler(app.dport), tinker_ar, tinker_aw} );
 
 void on_timer_0();
 

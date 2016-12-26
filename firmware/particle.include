@@ -17,6 +17,7 @@ main.cpp
 tinker.cpp
 tinker.h
 Tinker.h
+TinkerDigitalPort.h
 Register.h
 RegisterBank.h
 FixedFields.h
