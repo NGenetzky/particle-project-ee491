@@ -5,6 +5,9 @@
 #include <algorithm>
 #include "DigitalPin.h"
 
+// Only required for Constants in tinker_handler.
+#include "Tinker.h"
+
 namespace iot {
 
 class DigitalPort {
@@ -73,6 +76,30 @@ class DigitalPort {
         //TODO: Bounds checking
         return this->dpins[pin].set(value);
     }
+
+    bool tinker (int p, int &v){
+        // Handle digital Actions first.
+        switch ( v ) {
+            case iot::Tinker::DR:
+                v = this->digitalRead( p );
+                break;
+            case iot::Tinker::DW0:
+            case iot::Tinker::DW1:
+                this->digitalWrite( p, ( v == iot::Tinker::DW1 ) );
+                v = iot::Tinker::SUCCESS; // Update the App display
+                break;
+            default:
+                return false;
+        }
+        return true;
+    }
+
+    TinkerHandler tinker_handler(int type=0){
+        return [this] (int p, int &v) -> bool {
+            return this->tinker(p,v);
+        };
+    }
+
 
     /*******************************************************************************
     * Function Name  : PF_tinkerDigitalRead
