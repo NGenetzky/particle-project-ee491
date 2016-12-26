@@ -1,7 +1,7 @@
 #pragma once
 namespace iot {
 
-using TinkerHandler = std::function<int(int, int &)>;
+using TinkerHandler = std::function<bool(int, int &)>;
 
 class Tinker {
 
@@ -43,12 +43,26 @@ class Tinker {
         // All four of the functions will parse information and then call this
         // function. This function will ask each handler to act on it until.
         // the return value is not NOACT.
-        int tinker(int p, int v){
-            auto rv = Tinker::FAIL;
-            auto status = int(v);
-            for( const auto &f : this->handlers){
-                rv = f( p, status);
+        int tinker( int p, int v )
+        {
+            auto rv = Tinker::NOACT;
+            auto value = int( v );
+            for ( const auto &f : this->handlers ) {
+                if ( f( p, value ) ) {
+                    rv = value;
+                    break;
+                }
             }
+
+            // Extra processing on rv if value was unset.
+            if(v == rv){
+                // Handler probably did not set return value;
+                // Default to updating the app ( by returning 1;
+                if( v == Tinker::DW0 ) { return 1; }
+                else if( v == Tinker::DW1 ) { return 1; }
+                else if( 0 <= v ) { return 1; }
+            }
+
             return rv;
         }
 

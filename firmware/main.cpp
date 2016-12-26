@@ -82,36 +82,52 @@ std::map<unsigned, std::function<int(String)>> InstructionSet = {
     {6, std::bind(&iot::DigitalPort::PF_set, &app.dport, std::placeholders::_1)}
 };
 
-auto tinker_f = []( int p, int &v ) -> int {
-        // Handle digital Actions first.
+auto tinker_digital = []( int p, int &v ) -> bool {
+    // Handle digital Actions first.
     switch ( v ) {
         case iot::Tinker::DR:
-            return MainDPort.digitalRead( p );
+            v = MainDPort.digitalRead( p );
+            break;
         case iot::Tinker::DW0:
         case iot::Tinker::DW1:
             MainDPort.digitalWrite( p, ( v == iot::Tinker::DW1 ) );
-            return 1;
+            v = iot::Tinker::SUCCESS; // Update the App display
+            break;
+        default:
+            return false;
     }
+    return true;
+};
 
-    if( v == iot::Tinker::AR ){
+auto tinker_ar = []( int p, int &v ) -> bool
+{
+    if ( v == iot::Tinker::AR ) {
         switch ( p ) {
             case 8:
             case 9:
             case 10:
             case 11:
-                return regs.get( p - 6 );  // 2-5
+                v = regs.get( p - 6 );  // 2-5
+                break;
             case 12:
             case 13:
             case 14:
             case 15:
-                return regs.get( 1 );
+                v = regs.get( 1 );
+                break;
             default:
                 Particle.publish( "tinker.AR",
                                   String::format( "%d=%d", p, v ) );
-                return iot::Tinker::NOACT;
+                return false;
         };
+        return true;
+    } else {
+        return false;
+    }
+};
 
-    } else if ( 0 < v ) {
+auto tinker_aw  = []( int p, int &v ) -> bool {
+    if( 0 <= v ) {
         switch(p){
             case 0:
             case 1:
@@ -127,15 +143,16 @@ auto tinker_f = []( int p, int &v ) -> int {
                 break;
             default:
                 Particle.publish("tinker.AW", String::format("%d=%d",p,v));
-                return iot::Tinker::NOACT;
+                return false;
         };
-        return iot::Tinker::SUCCESS; // Update display
-
+        v = iot::Tinker::SUCCESS; // Update the App display
+        return true;
+    } else {
+        return false;
     }
-
-    return iot::Tinker::NOACT;
 };
-auto tinker = iot::Tinker({tinker_f});
+
+auto tinker = iot::Tinker({tinker_digital, tinker_ar, tinker_aw});
 
 void on_timer_0();
 
