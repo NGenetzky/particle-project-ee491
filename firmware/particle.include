@@ -4,6 +4,7 @@ DigitalPort.h
 AppDigitalPort.h
 AppStdin.h
 AppStdout.h
+AppTinker.h
 Identifier.h
 Function.h
 Pin.h

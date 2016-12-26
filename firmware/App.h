@@ -10,6 +10,9 @@
 #define STDOUT_EN 1
 #include "AppStdout.h"
 
+#define TINKER_EN 1
+#include "AppTinker.h"
+
 namespace iot {
 
 class App {
@@ -25,6 +28,7 @@ class App {
 
     int setup(){
         this->setup_PV_help();
+        TINKER_SETUP
         DIGITALPORT_SETUP
         STDIN_SETUP
         STDOUT_SETUP
@@ -42,6 +46,7 @@ class App {
         const char *HELP;
     public:
 
+    TINKER_APP
     DIGITALPORT_APP
     STDIN_APP
     STDOUT_APP

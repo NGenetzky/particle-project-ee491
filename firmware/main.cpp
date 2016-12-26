@@ -84,17 +84,6 @@ std::map<unsigned, std::function<int(String)>> InstructionSet = {
     {6, std::bind(&iot::DigitalPort::PF_set, &app.dport, std::placeholders::_1)}
 };
 
-auto tinker = iot::Tinker( {
-        TinkerHandler( app.dport ),
-        TinkerHandler( t, 12 ),
-        TinkerHandler( d0, 13 ),
-        TinkerHandler( d0, 14 ),
-        TinkerHandler( a0, 8 ),
-        TinkerHandler( a1, 9 ),
-        TinkerHandler( a2, 10 ),
-        TinkerHandler( a3, 11 )
-        } );
-
 void on_timer_0();
 
 void process( iot::File &i, iot::File &o,
@@ -114,11 +103,21 @@ void setup(){
     // src: https://docs.particle.io/reference/firmware/photon/#analogread-adc-
     // In other words, don't do: pinMode(analog_pin, INPUT);
 
-    tinker.setup_PF_tinker();
+    // tinker.setup_PF_tinker();
 
     app.setup();
     app.setup_PF_get();
     app.setup_PF_set();
+    app.setup_PF_tinker();
+
+    app.add( TinkerHandler( app.dport ) );
+    app.add( TinkerHandler( t, 12 ) );
+    app.add( TinkerHandler( d0, 13 ) );
+    app.add( TinkerHandler( d0, 14 ) );
+    app.add( TinkerHandler( a0, 8 ) );
+    app.add( TinkerHandler( a1, 9 ) );
+    app.add( TinkerHandler( a2, 10 ) );
+    app.add( TinkerHandler( a3, 11 ) );
 
     regs.setup_PF_reg();
 
