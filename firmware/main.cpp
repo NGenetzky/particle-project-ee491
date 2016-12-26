@@ -41,7 +41,6 @@ auto  led3  =  iot::DigitalPin(pins::LED3);
 auto  sw1   =  iot::DigitalPin(pins::SW1);
 auto  sw2   =  iot::DigitalPin(pins::SW2);
 auto  sw3   =  iot::DigitalPin(pins::SW3);
-
 auto MainDPort = iot::DigitalPort(
     std::vector<iot::DigitalPin>{board_led, led1, led2, led3, sw1, sw2, sw3} );
 
@@ -54,6 +53,8 @@ auto a1 = iot::Register( []() { return analogRead( A1 ); });
 auto a2 = iot::Register( []() { return analogRead( A2 ); });
 auto a3 = iot::Register( []() { return analogRead( A3 ); });
 auto regs = iot::RegisterBank({t, d0, a0,a1,a2,a3});
+
+auto thingspeak = iot::FixedFields({10,10,4,4,4,4});
 
 // auto app = iot::App(HELP);
 auto app = iot::App( HELP, MainDPort );
@@ -99,9 +100,9 @@ void setup(){
 
     app.setup();
 
-    regs.setup();
     regs.setup_PF_reg();
-    regs.setup_PV_data();
+
+    thingspeak.setup_json_map();
 
     delay(500);
     timer0.start();
@@ -174,5 +175,12 @@ void process( iot::File &i, iot::File &o,
 }
 
 void on_timer_0(){
-    regs.publish();
+    thingspeak.set(0, String::format("%010u", t.get()));
+    thingspeak.set(1, String::format("%010u", d0.get()));
+    thingspeak.set(2, String::format("%04d", a0.get()));
+    thingspeak.set(3, String::format("%04d", a1.get()));
+    thingspeak.set(4, String::format("%04d", a2.get()));
+    thingspeak.set(5, String::format("%04d", a3.get()));
+
+    thingspeak.publish();
 }
