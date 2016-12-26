@@ -65,10 +65,12 @@ class DigitalPort {
     }
 
     int digitalRead(int pin){
+        //TODO: Bounds checking
         return this->dpins[pin].get();
     }
 
     int digitalWrite(int pin, bool value){
+        //TODO: Bounds checking
         return this->dpins[pin].set(value);
     }
 

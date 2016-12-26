@@ -31,6 +31,7 @@ const char * HELP =
 #include "RegisterBank.h"
 #include "Register.h"
 #include "FixedFields.h"
+#include "Tinker.h"
 
 int loop_count = 0;
 
@@ -46,7 +47,6 @@ auto  sw3   =  iot::DigitalPin(pins::SW3);
 auto MainDPort = iot::DigitalPort(
     std::vector<iot::DigitalPin>{board_led, led1, led2, led3, sw1, sw2, sw3} );
 
-// Analog port for 1+.
 auto t = iot::Register( []() { return millis(); });
 auto d0 = iot::Register( []() { return MainDPort.get(); },
                          []( int v ) { return MainDPort.set( v ); } );
@@ -82,22 +82,59 @@ std::map<unsigned, std::function<int(String)>> InstructionSet = {
     {6, std::bind(&iot::DigitalPort::PF_set, &app.dport, std::placeholders::_1)}
 };
 
-// auto tinker = iot::Tinker( []( int p, int v ) -> int {
-//     if ( p < iot::Tinker::ANALOG ) {
-//         if ( v == -1 ) {
-//             return MainDPort.digitalRead( p - iot::Tinker::DIGITAL );
-//         } else {
-//             return MainDPort.digitalWrite( p - iot::Tinker::DIGITAL, v );
-//         }
-//     } else {
-//         if ( v == -1 ) {
-//             // return regs.get( p );
-//         } else {
-//             // return regs.set( p, v );
-//         }
-//         return -100;
-//     }
-// } );
+auto tinker = iot::Tinker( []( int p, int v ) -> int {
+        // Handle digital Actions first.
+    switch ( v ) {
+        case iot::Tinker::DR:
+            return MainDPort.digitalRead( p );
+        case iot::Tinker::DW0:
+        case iot::Tinker::DW1:
+            MainDPort.digitalWrite( p, ( v == iot::Tinker::DW1 ) );
+            return 1;
+    }
+
+    if( v == iot::Tinker::AR ){
+        switch ( p ) {
+            case 8:
+            case 9:
+            case 10:
+            case 11:
+                return regs.get( p - 6 );  // 2-5
+            case 12:
+            case 13:
+            case 14:
+            case 15:
+                return regs.get( 1 );
+            default:
+                Particle.publish( "tinker.AR",
+                                  String::format( "%d=%d", p, v ) );
+                return iot::Tinker::NOACT;
+        };
+
+    } else if ( 0 < v ) {
+        switch(p){
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+                regs.set( 1, int(v / 32) ); // 2-5
+                break;
+            case 12:
+            case 13:
+            case 14:
+            case 15:
+                regs.set( 1, v );
+                break;
+            default:
+                Particle.publish("tinker.AW", String::format("%d=%d",p,v));
+                return iot::Tinker::NOACT;
+        };
+        return iot::Tinker::SUCCESS; // Update display
+
+    }
+
+    return iot::Tinker::NOACT;
+} );
 
 void on_timer_0();
 
@@ -118,14 +155,18 @@ void setup(){
     // src: https://docs.particle.io/reference/firmware/photon/#analogread-adc-
     // In other words, don't do: pinMode(analog_pin, INPUT);
 
+    tinker.setup_PF_tinker();
+
     app.setup();
+    app.setup_PF_get();
+    app.setup_PF_set();
 
     regs.setup_PF_reg();
 
     thingspeak.setup_json_map();
 
     delay(500);
-    timer0.start();
+    // timer0.start();
 }
 
 // This routine gets called repeatedly, like once every 5-15 milliseconds.
