@@ -82,7 +82,7 @@ std::map<unsigned, std::function<int(String)>> InstructionSet = {
     {6, std::bind(&iot::DigitalPort::PF_set, &app.dport, std::placeholders::_1)}
 };
 
-auto tinker = iot::Tinker( []( int p, int v ) -> int {
+auto tinker_f = []( int p, int &v ) -> int {
         // Handle digital Actions first.
     switch ( v ) {
         case iot::Tinker::DR:
@@ -134,7 +134,8 @@ auto tinker = iot::Tinker( []( int p, int v ) -> int {
     }
 
     return iot::Tinker::NOACT;
-} );
+};
+auto tinker = iot::Tinker({tinker_f});
 
 void on_timer_0();
 

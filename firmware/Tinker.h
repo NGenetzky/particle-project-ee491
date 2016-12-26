@@ -1,7 +1,7 @@
 #pragma once
 namespace iot {
 
-using TinkerHandler = std::function<int(int, int)>;
+using TinkerHandler = std::function<int(int, int &)>;
 
 class Tinker {
 
@@ -21,7 +21,12 @@ class Tinker {
         static const int SUCCESS = 1;
 
         Tinker() = default;
-        Tinker( TinkerHandler f ) : f( f ) {}
+        Tinker( std::vector<TinkerHandler> v) : handlers( v ) {}
+
+        int add(TinkerHandler f){
+            this->handlers.push_back(f);
+            return this->handlers.size();
+        }
 
         bool setup_PF_tinker(){
             Particle.function( "digitalread",
@@ -35,9 +40,15 @@ class Tinker {
             return true;
         }
 
+        // All four of the functions will parse information and then call this
+        // function. This function will ask each handler to act on it until.
+        // the return value is not NOACT.
         int tinker(int p, int v){
+            auto rv = Tinker::FAIL;
             auto status = int(v);
-            auto rv = this->f( p, status);
+            for( const auto &f : this->handlers){
+                rv = f( p, status);
+            }
             return rv;
         }
 
@@ -54,13 +65,13 @@ class Tinker {
                     return pinNumber;
                 case 'A':
                     return pinNumber + 8;
-                    // return pinNumber + 10;
+                    // return pinNumber + 10; // Particle's pin.
                 case 'B':
                     return pinNumber + 16;
-                    // return pinNumber + 24;
+                    // return pinNumber + 24; // Particle's pin.
                 case 'C':
                     return pinNumber + 24;
-                    // return pinNumber + 30;
+                    // return pinNumber + 30; // Particle's pin.
                 case 'T':
                     return 32+0;
                     // return TX;
@@ -103,7 +114,7 @@ class Tinker {
         }
 
     private:
-        TinkerHandler f;
+        std::vector<TinkerHandler> handlers;
 };
 
 }
