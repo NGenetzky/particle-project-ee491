@@ -7,9 +7,8 @@ namespace iot {
 
 class RegisterBank {
    public:
+    RegisterBank() = default;
     RegisterBank( std::vector<Register> regs ) : regs( regs ) {}
-
-    void setup() {}
 
     std::vector<int> to_vector()
     {
@@ -55,9 +54,12 @@ class RegisterBank {
         }
         return this->regs[index].set( value );
     }
-    int size(){return this->regs.size();}
 
-   private:
+    int size(){return this->regs.size();}
+    int add(Register r){
+        this->regs.push_back(r);
+    }
+
     std::vector<Register> regs;
 };
 

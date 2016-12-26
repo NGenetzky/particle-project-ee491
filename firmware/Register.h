@@ -45,5 +45,9 @@ class Register {
         std::function<int(int)> set_f = [](int){return -1;};
 };
 
+Register AnalogRegister(int pin) {
+    return Register( [pin] { return analogRead( pin ); } );
+}
+
 //iot
 }

@@ -1,8 +1,6 @@
 
 #pragma once
 #include "Tinker.h"
-#include "TinkerDigitalPort.h"
-#include "TinkerRegister.h"
 
 // #define TINKER_EN 1
 

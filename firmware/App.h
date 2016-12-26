@@ -13,6 +13,9 @@
 #define TINKER_EN 1
 #include "AppTinker.h"
 
+#define REGISTERBANK_EN 1
+#include "AppRegisterBank.h"
+
 namespace iot {
 
 class App {
@@ -37,6 +40,7 @@ class App {
 
     int loop()
     {
+        loop_count++;
         return 0;
     }
 
@@ -44,10 +48,13 @@ class App {
 
     private:
         const char *HELP;
+        int loop_count = 0;
+
     public:
 
     TINKER_APP
     DIGITALPORT_APP
+    REGISTERBANK_APP
     STDIN_APP
     STDOUT_APP
 };

@@ -35,28 +35,24 @@ const char * HELP =
 #include "TinkerDigitalPort.h"
 #include "TinkerRegister.h"
 
-int loop_count = 0;
 
 auto board_led = iot::DigitalPin(iot::photon::pins::board_led);
 
 using namespace iot::freenove;
-auto  led1  =  iot::DigitalPin(pins::LED1);
-auto  led2  =  iot::DigitalPin(pins::LED2);
-auto  led3  =  iot::DigitalPin(pins::LED3);
-auto  sw1   =  iot::DigitalPin(pins::SW1);
-auto  sw2   =  iot::DigitalPin(pins::SW2);
-auto  sw3   =  iot::DigitalPin(pins::SW3);
-auto MainDPort = iot::DigitalPort(
-    std::vector<iot::DigitalPin>{board_led, led1, led2, led3, sw1, sw2, sw3} );
+
+auto MainDPort = iot::DigitalPort( std::vector<iot::DigitalPin>{
+    iot::photon::pins::board_led,
+    pins::LED1, pins::LED2, pins::LED3, pins::SW1, pins::SW2, pins::SW3,
+} );
 
 auto t = iot::Register( []() { return millis(); });
 auto d0 = iot::Register( []() { return MainDPort.get(); },
                          []( int v ) { return MainDPort.set( v ); } );
-auto a0 = iot::Register( []() { return analogRead( A0 ); });
-auto a1 = iot::Register( []() { return analogRead( A1 ); });
-auto a2 = iot::Register( []() { return analogRead( A2 ); });
-auto a3 = iot::Register( []() { return analogRead( A3 ); });
-auto regs = iot::RegisterBank({t, d0, a0,a1,a2,a3});
+auto a0 = iot::AnalogRegister( A0 );
+auto a1 = iot::AnalogRegister( A1 );
+auto a2 = iot::AnalogRegister( A2 );
+auto a3 = iot::AnalogRegister( A3 );
+auto regs = iot::RegisterBank( {t, d0, a0, a1, a2, a3} );
 
 auto thingspeak = iot::FixedFields({10,10,4,4,4,4});
 
@@ -106,9 +102,8 @@ void setup(){
     // tinker.setup_PF_tinker();
 
     app.setup();
-    app.setup_PF_get();
-    app.setup_PF_set();
-    app.setup_PF_tinker();
+
+    app.add(regs);
 
     app.add( TinkerHandler( app.dport ) );
     app.add( TinkerHandler( t, 12 ) );
@@ -119,12 +114,16 @@ void setup(){
     app.add( TinkerHandler( a2, 10 ) );
     app.add( TinkerHandler( a3, 11 ) );
 
+    app.setup_PF_get();
+    app.setup_PF_set();
+    app.setup_PF_tinker();
+
     regs.setup_PF_reg();
 
     thingspeak.setup_json_map();
 
     delay(500);
-    // timer0.start();
+    timer0.start();
 }
 
 // This routine gets called repeatedly, like once every 5-15 milliseconds.
@@ -140,8 +139,6 @@ void loop(){
     // if(app.std_out.available()){
     //     Serial.write(app.std_out.read());
     // }
-
-    loop_count++;
 }
 
 // Called whenever there is data to be read from a serial peripheral.
