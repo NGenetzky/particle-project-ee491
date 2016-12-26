@@ -33,6 +33,7 @@ const char * HELP =
 #include "FixedFields.h"
 #include "Tinker.h"
 #include "TinkerDigitalPort.h"
+#include "TinkerRegister.h"
 
 int loop_count = 0;
 
@@ -83,61 +84,16 @@ std::map<unsigned, std::function<int(String)>> InstructionSet = {
     {6, std::bind(&iot::DigitalPort::PF_set, &app.dport, std::placeholders::_1)}
 };
 
-auto tinker_ar = []( int p, int &v ) -> bool
-{
-    if ( v == iot::Tinker::AR ) {
-        switch ( p ) {
-            case 8:
-            case 9:
-            case 10:
-            case 11:
-                v = regs.get( p - 6 );  // 2-5
-                break;
-            case 12:
-            case 13:
-            case 14:
-            case 15:
-                v = regs.get( 1 );
-                break;
-            default:
-                Particle.publish( "tinker.AR",
-                                  String::format( "%d=%d", p, v ) );
-                return false;
-        };
-        return true;
-    } else {
-        return false;
-    }
-};
-
-auto tinker_aw  = []( int p, int &v ) -> bool {
-    if( 0 <= v ) {
-        switch(p){
-            case 0:
-            case 1:
-            case 2:
-            case 3:
-                regs.set( 1, int(v / 32) ); // 2-5
-                break;
-            case 12:
-            case 13:
-            case 14:
-            case 15:
-                regs.set( 1, v );
-                break;
-            default:
-                Particle.publish("tinker.AW", String::format("%d=%d",p,v));
-                return false;
-        };
-        v = iot::Tinker::SUCCESS; // Update the App display
-        return true;
-    } else {
-        return false;
-    }
-};
-
-// auto tinker = iot::Tinker( {MainDPort.tinker_handler(), tinker_ar, tinker_aw} );
-auto tinker = iot::Tinker( {TinkerHandler(app.dport), tinker_ar, tinker_aw} );
+auto tinker = iot::Tinker( {
+        TinkerHandler( app.dport ),
+        TinkerHandler( t, 12 ),
+        TinkerHandler( d0, 13 ),
+        TinkerHandler( d0, 14 ),
+        TinkerHandler( a0, 8 ),
+        TinkerHandler( a1, 9 ),
+        TinkerHandler( a2, 10 ),
+        TinkerHandler( a3, 11 )
+        } );
 
 void on_timer_0();
 
