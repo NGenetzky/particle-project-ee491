@@ -28,7 +28,9 @@ const char * HELP =
 #include "Function.h"
 #include "Pin.h"
 #include "File.h"
+#include "RegisterBank.h"
 #include "Register.h"
+#include "FixedFields.h"
 
 int loop_count = 0;
 
