@@ -10,8 +10,12 @@ class FixedFields {
      {
      }
 
-    void publish(){
-        Particle.publish("thingspeak", this->chars.data());
+    void setup_PV(String name){
+        Particle.variable(name, this->chars.data());
+    }
+
+    void publish(String name = "thingspeak"){
+        Particle.publish(name, this->chars.data());
     }
 
     // Only valid up to 9 fields.

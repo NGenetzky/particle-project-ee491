@@ -58,6 +58,7 @@ class RegisterBank {
     int size(){return this->regs.size();}
     int add(Register r){
         this->regs.push_back(r);
+        return 0;
     }
 
     std::vector<Register> regs;

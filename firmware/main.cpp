@@ -99,12 +99,11 @@ void setup(){
     // src: https://docs.particle.io/reference/firmware/photon/#analogread-adc-
     // In other words, don't do: pinMode(analog_pin, INPUT);
 
-    // tinker.setup_PF_tinker();
-
     app.setup();
 
     app.add(regs);
 
+    // These can respond to commands sent from tinker app.
     app.add( TinkerHandler( app.dport ) );
     app.add( TinkerHandler( t, 12 ) );
     app.add( TinkerHandler( d0, 13 ) );
@@ -114,6 +113,7 @@ void setup(){
     app.add( TinkerHandler( a2, 10 ) );
     app.add( TinkerHandler( a3, 11 ) );
 
+    // Digital read 
     app.setup_PF_get();
     app.setup_PF_set();
     app.setup_PF_tinker();
@@ -121,6 +121,7 @@ void setup(){
     regs.setup_PF_reg();
 
     thingspeak.setup_json_map();
+    thingspeak.setup_PV("data");
 
     delay(500);
     timer0.start();
@@ -133,12 +134,12 @@ void setup(){
 void loop(){
     app.loop();
 
-    // if(app.std_in.available()){
-    //     process(app.std_in, app.std_out, InstructionSet);
-    // }
-    // if(app.std_out.available()){
-    //     Serial.write(app.std_out.read());
-    // }
+    if(app.std_in.available()){
+        process(app.std_in, app.std_out, InstructionSet);
+    }
+    if(app.std_out.available()){
+        Serial.write(app.std_out.read());
+    }
 }
 
 // Called whenever there is data to be read from a serial peripheral.
@@ -147,7 +148,7 @@ void loop(){
 // is ok to call any functions at you would also call from loop().
 void serialEvent()
 {
-    // app.std_in.write(Serial.read());
+    app.std_in.write(Serial.read());
 }
 
 // Will skip until first function.
@@ -198,5 +199,5 @@ void on_timer_0(){
     thingspeak.set(4, String::format("%04d", a2.get()));
     thingspeak.set(5, String::format("%04d", a3.get()));
 
-    thingspeak.publish();
+    // thingspeak.publish();
 }
