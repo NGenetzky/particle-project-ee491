@@ -2,12 +2,28 @@
 // main.cpp // Main program for firmware.
 
 // Set HELP at compile time with information useful for the end user.
-const char * HELP =
-    "DigitalPort Example:\n" \
-    "get()=DigitalPort.get();\n" \
-    "set(v)=DigitalPort.set(v);\n" \
-    "DigitalPort={board_led, led1, led2, led3, sw1, sw2, sw3};\n" \
-    ;
+const char * HELP = "EE491 Particle Microcontroller\n"
+    "Variables:\n" \
+    "help // How to use Application.\n" \
+    "stdin // Characters in input buffer.\n" \
+    "stdout // Characters in output buffer.\n" \
+    "data\n" \
+    "Functions:\n" \
+    "cin('string') -> stdin.append(string)\n" \
+    "get('i') -> DigitalPort::get()\n" \
+    "set('v') -> DigitalPort::set(v)\n" \
+    "digitalread('LN') -> DigitalPort::set(N+L#)\n" \
+    "digitalwrite('LN=D') -> DigitalPort::set(N+L#,D)\n" \
+    "analogread('LN') -> Register::get(N+L#)\n" \
+    "analogwrite('LN=A') -> Register::set(N+L#,A)\n" \
+    "reg('i') -> Register::get(i);\n" \
+    "reg('i=v') -> Register::set(i,v);\n" \
+    "Notes:\n" \
+    "// N=[0,8], B={HIGH,LOW}, A=[0,4095]\n" \
+    "// L={A|B|C|D}, L#={D=0,A=8,B=16,C=24};\n" \
+    "d0=DigitalPort( {board_led, led1, led2, led3, sw1, sw2, sw3} );\n" \
+    "regs=RegisterBank( {t, d0, a0, a1, a2, a3} );\n" \
+;
 
 #include <vector> // std::vector
 #include "application.h" // Required for Particle.
