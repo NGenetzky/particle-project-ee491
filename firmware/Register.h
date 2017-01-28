@@ -3,6 +3,9 @@
 
 namespace iot {
 
+// Holds a cached value (int) and two std::function objects.
+// this->get() will call the getter_f().
+// this->set(int value) will call setter_f(value).
 class Register {
    public:
     Register( std::function<int()> getter ) : get_f( getter ) {}

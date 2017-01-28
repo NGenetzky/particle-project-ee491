@@ -5,6 +5,11 @@
 
 namespace iot {
 
+// Holds a vector of Registers objects.
+// These objects are assumed to represent an int.
+// get and set can be called with an index one of these object.
+// PF_set expects a string in the format: "index=value".
+// PF_get expects "index".
 class RegisterBank {
    public:
     RegisterBank() = default;
@@ -42,14 +47,15 @@ class RegisterBank {
 
     int get( unsigned index )
     {
-        if ( index < 0 || this->regs.size() < index ) {
+        if ( index < 0 || this->regs.size() <= index ) {
             return -2;
         }
         return this->regs[index].get();
     }
+
     int set( unsigned index, int value )
     {
-        if ( index < 0 || this->regs.size() < index ) {
+        if ( index < 0 || this->regs.size() <= index ) {
             return -2;
         }
         return this->regs[index].set( value );
