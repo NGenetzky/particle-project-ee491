@@ -14,32 +14,37 @@ write(){
     echo $1 >> $outfile
 }
 
-ini_section(){
-    write "[$1]"
+yaml_multiline0(){
+    write "$1: |"
+    write "$2"
+    write "" # Blank line after multiline.
 }
 
-ini_value(){
-    write "$1=$2"
+yaml_singleline0(){
+    write "$1: $2"
+}
+yaml_singleline1(){
+    write "    $1: $2"
 }
 
 # Main
-echo "; Created by ParticleDevice.sh" > $outfile
+echo "# Created by ParticleDevice.sh" > $outfile
 
-ini_section "Variables"
+write "# Variables"
 for var in ${variables[@]}; do
-    rv=$(particle get $device $var)
+    rv="$(particle get $device $var)"
     if [ $? -eq 0 ]; then
-        IFS='%'
-        ini_value $var "$rv"
+        IFS='%' # Preserve whitespace. until "unset IFS"
+        yaml_multiline0 $var "$rv"
         unset IFS
     fi
 done
 
-ini_section "RegisterBank"
+yaml_singleline0 "RegisterBank" ""
 for i in ${registers[@]}; do
-    rv=$(particle call $device reg $i)
+    rv="$(particle call $device reg $i)"
     if [ $? -eq 0 ]; then
-        ini_value $i "$rv"
+        yaml_singleline1 $i "$rv"
     else
         break;
     fi
