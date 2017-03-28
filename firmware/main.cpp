@@ -7,7 +7,7 @@ const char * HELP = "EE491 Particle Microcontroller\n"
     "help // How to use Application.\n" \
     "stdin // Characters in input buffer.\n" \
     "stdout // Characters in output buffer.\n" \
-    "data\n" \
+    "data // String representing RegisterBank\n" \
     "Functions:\n" \
     "cin('string') -> stdin.append(string)\n" \
     "get('i') -> DigitalPort::get()\n" \
@@ -121,13 +121,13 @@ void setup(){
 
     // These can respond to commands sent from tinker app.
     app.add( TinkerHandler( app.dport ) );
-    app.add( TinkerHandler( t, 12 ) );
-    app.add( TinkerHandler( d0, 13 ) );
-    app.add( TinkerHandler( d0, 14 ) );
-    app.add( TinkerHandler( a0, 8 ) );
-    app.add( TinkerHandler( a1, 9 ) );
-    app.add( TinkerHandler( a2, 10 ) );
-    app.add( TinkerHandler( a3, 11 ) );
+    app.add( TinkerHandler( t, 12 ) ); // A4
+    app.add( TinkerHandler( d0, 13 ) ); // A5
+    app.add( TinkerHandler( d0, 14 ) ); // A6
+    app.add( TinkerHandler( a0, 8 ) ); // A0
+    app.add( TinkerHandler( a1, 9 ) ); // A1
+    app.add( TinkerHandler( a2, 10 ) ); // A2
+    app.add( TinkerHandler( a3, 11 ) ); // A3
 
     // Digital read 
     app.setup_PF_get();
