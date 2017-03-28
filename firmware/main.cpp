@@ -50,6 +50,7 @@ const char * HELP = "EE491 Particle Microcontroller\n"
 #include "Tinker.h"
 #include "TinkerDigitalPort.h"
 #include "TinkerRegister.h"
+#include "ParticleCloud.h"
 
 
 auto board_led = iot::DigitalPin(iot::photon::pins::board_led);
@@ -71,6 +72,8 @@ auto a3 = iot::AnalogRegister( A3 );
 auto regs = iot::RegisterBank( {t, d0, a0, a1, a2, a3} );
 
 auto thingspeak = iot::FixedFields({10,10,4,4,4,4});
+
+auto cloud = iot::ParticleCloud{};
 
 // auto app = iot::App(HELP);
 auto app = iot::App( HELP, MainDPort );
@@ -138,6 +141,13 @@ void setup(){
 
     thingspeak.setup_json_map();
     thingspeak.setup_PV("data");
+    
+    cloud.function("DR", iot::particle::tinkerDigitalRead );
+    cloud.function("DW", iot::particle::tinkerDigitalWrite );
+    cloud.function("AR", iot::particle::tinkerAnalogRead );
+    cloud.function("AW", iot::particle::tinkerAnalogWrite );
+    cloud.function("get", std::bind(&iot::DigitalPort::PF_get, &app.dport, std::placeholders::_1) );
+    cloud.function("set", std::bind(&iot::DigitalPort::PF_set, &app.dport, std::placeholders::_1) );
 
     delay(500);
     timer0.start();
@@ -198,13 +208,13 @@ void process( iot::File &i, iot::File &o,
         return;
     }
 
-    if(find_function(ops, f)){
-        // Write the String representation of the return value followed by \n.
-        o.write(String(f()));
-        o.write("\n");
-    } else {
+    auto fx = cloud.find(f.get_name());
+    if(nullptr == fx){
         Particle.publish("process.err4", i.data());
     }
+    auto rsp = fx->call_f(f.get_args());
+    o.write(String(rsp));
+    o.write("\n"); // TODO single char.
 }
 
 void on_timer_0(){

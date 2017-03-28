@@ -48,7 +48,7 @@ struct ParticleObject {
     
     // Specific implementation
     ParticleObject() = default;
-    char *name_p;
+    char *name_p = nullptr;
     std::function<char*()> data_f;
     std::function<int(const char* args)> call_f;
     std::function<void(const char* event, const char* data)> handle_f;
@@ -57,6 +57,7 @@ struct ParticleObject {
 // Handle registration with Particle.
 // Provides access to variables, functions, and events in other ways.
 class ParticleCloud {
+    public:
     ParticleCloud() = default;
     
     size_t emplace_empty() {
@@ -65,6 +66,18 @@ class ParticleCloud {
     }
     
     // TODO find()
+    ParticleObject* find(const char *c){
+        for( auto &x : this->objects ){
+            if( x.name_p == nullptr ){
+                continue;
+            }
+            if( 0 != strcmp(x.name_p, c) ){
+                continue;
+            }
+            return &x;
+        }
+        return nullptr;
+    }
     
     // Emulate "Particle"
     bool function( char *fname, std::function<int(const char* args)> f){
