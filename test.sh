@@ -18,6 +18,9 @@ test_digitalport(){
 }
 
 test_cin_stdout(){
+    particle call Logan cin "\$(reg 0)"
+    particle get Logan stdout
+    
     particle call Logan cin "\$(DW D7=HIGH)"
     particle get Logan stdout
 
@@ -34,6 +37,9 @@ test_cin_stdout(){
     particle get Logan stdout
 
     particle call Logan cin "\$(get)"
+    particle get Logan stdout
+    
+    particle call Logan cin "\$(reg 0)"
     particle get Logan stdout
 }
 

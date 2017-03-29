@@ -111,9 +111,9 @@ void setup(){
     app.add( TinkerHandler( a3, 11 ) ); // A3
 
     // Digital read 
-    app.setup_PF_get();
-    app.setup_PF_set();
-    app.setup_PF_tinker();
+    app.setup_PF_get(); // digitalport
+    app.setup_PF_set(); // digitalport
+    app.setup_PF_tinker(); // Tinker
 
     regs.setup_PF_reg();
 
@@ -126,6 +126,7 @@ void setup(){
     cloud.function("AW", iot::particle::tinkerAnalogWrite );
     cloud.function("get", std::bind(&iot::DigitalPort::PF_get, &app.dport, std::placeholders::_1) );
     cloud.function("set", std::bind(&iot::DigitalPort::PF_set, &app.dport, std::placeholders::_1) );
+    cloud.function("reg", std::bind(&iot::RegisterBank::PF_reg, &app.regs, std::placeholders::_1) );
 
     delay(500);
     timer0.start();
