@@ -2,7 +2,7 @@
 #include "application.h" // Required for Particle.
 #include <vector>
 #include <algorithm>
-#include "Identifier.h"
+// #include "Identifier.h"
 
 namespace iot {
 
@@ -68,18 +68,18 @@ class Function {
         };
 };
 
-bool find_function( std::map<unsigned, std::function<int( String )>> const &ops,
-                    Function &f ){
-    auto id = iot::Identifier(f.get_name());
+// bool find_function( std::map<unsigned, std::function<int( String )>> const &ops,
+//                     Function &f ){
+//     auto id = iot::Identifier(f.get_name());
 
-    auto pf_it = ops.find(id);
-    if (pf_it == ops.end()){
-        return false;
-    }
-    auto pf = pf_it->second;
-    f.bind(pf);
-    return true;
-}
+//     auto pf_it = ops.find(id);
+//     if (pf_it == ops.end()){
+//         return false;
+//     }
+//     auto pf = pf_it->second;
+//     f.bind(pf);
+//     return true;
+// }
 
 // iot
 }

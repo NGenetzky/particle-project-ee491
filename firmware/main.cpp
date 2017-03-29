@@ -40,7 +40,7 @@ const char * HELP = "EE491 Particle Microcontroller\n"
 #include "App.h"
 #include "DigitalPin.h"
 #include "DigitalPort.h"
-#include "Identifier.h"
+// #include "Identifier.h"
 #include "Function.h"
 #include "Pin.h"
 #include "File.h"
@@ -78,31 +78,9 @@ auto cloud = iot::ParticleCloud{};
 // auto app = iot::App(HELP);
 auto app = iot::App( HELP, MainDPort );
 
-const std::map<unsigned, char const *const> iot::Identifier::DICTIONARY = {
-    {0, "null"},
-    {1, "DR"},
-    {2, "DW"},
-    {3, "AR"},
-    {4, "AW"},
-    {5, "get"},
-    {6, "set"},
-};
-
-// Function object that accepts String and returns int.
-// Similar to one expected for Particle's Cloud Functions.
-std::map<unsigned, std::function<int(String)>> InstructionSet = {
-    {1, iot::particle::tinkerDigitalRead},
-    {2, iot::particle::tinkerDigitalWrite},
-    {3, iot::particle::tinkerAnalogRead},
-    {4, iot::particle::tinkerAnalogWrite},
-    {5, std::bind(&iot::DigitalPort::PF_get, &app.dport, std::placeholders::_1)},
-    {6, std::bind(&iot::DigitalPort::PF_set, &app.dport, std::placeholders::_1)}
-};
-
 void on_timer_0();
 
-void process( iot::File &i, iot::File &o,
-              std::map<unsigned, std::function<int( String )>> ops );
+void process( iot::File &i, iot::File &o );
 
 Timer timer0(2000, on_timer_0);
 
@@ -161,7 +139,7 @@ void loop(){
     app.loop();
 
     if(app.std_in.available()){
-        process(app.std_in, app.std_out, InstructionSet);
+        process(app.std_in, app.std_out);
     }
     if(app.std_out.available()){
         Serial.write(app.std_out.read());
@@ -180,8 +158,7 @@ void serialEvent()
 // Will skip until first function.
 // Will parse the function from input stream, call it and then put result on
 // output stream.
-void process( iot::File &i, iot::File &o,
-              std::map<unsigned, std::function<int( String )>> ops )
+void process( iot::File &i, iot::File &o)
 {
     iot::Function f;
     auto start = i.find('$');
@@ -214,7 +191,7 @@ void process( iot::File &i, iot::File &o,
     }
     auto rsp = fx->call_f(f.get_args());
     o.write(String(rsp));
-    o.write("\n"); // TODO single char.
+    o.write('\n');
 }
 
 void on_timer_0(){
