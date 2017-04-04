@@ -38,8 +38,26 @@ class FixedFields {
             this->chars.push_back( '"' );
             this->chars.push_back( ',' );
         }
+        this->chars.pop_back(); // Remove trailing comma.
+        
         this->chars.push_back( '}' );
         this->chars.push_back( '\0' );
+    }
+    
+    void set(unsigned i, int d) {
+        if( this->index.size() <= i ){ return; }
+
+        auto w = this->width[i];
+        auto s = String::format("%0*d", w, d);
+        for( unsigned j = 0; j < w; j ++){
+            this->chars[this->index[i]+j] = s.charAt(j);
+        }
+    }
+    
+    void set(std::vector<int> v) {
+        for( auto i = unsigned(0); (i<v.size() && i<this->width.size()); i++){
+            this->set(i, v[i]);
+        }
     }
 
     void set(unsigned i, String s) {

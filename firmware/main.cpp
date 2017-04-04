@@ -271,12 +271,8 @@ void process( iot::File &i, iot::File &o)
 }
 
 void on_timer_0(){
-    thingspeak.set(0, String::format("%010u", t.get()));
-    thingspeak.set(1, String::format("%010u", dport_reg.get()));
-    thingspeak.set(2, String::format("%04d", a0.get()));
-    thingspeak.set(3, String::format("%04d", a1.get()));
-    thingspeak.set(4, String::format("%04d", a2.get()));
-    thingspeak.set(5, String::format("%04d", a3.get()));
+    thingspeak.set({ t.get(), dport_reg.get(),
+                    a0.get(), a1.get(), a2.get(), a3.get() });
 
-    // thingspeak.publish();
+    thingspeak.publish();
 }
