@@ -21,7 +21,7 @@ const char * HELP = "EE491 Particle Microcontroller\n"
     "Notes:\n" \
     "// N=[0,8], B={HIGH,LOW}, A=[0,4095]\n" \
     "// L={A|B|C|D}, L#={D=0,A=8,B=16,C=24};\n" \
-    "d0=DigitalPort( {board_led, led1, led2, led3, sw1, sw2, sw3} );\n" \
+    "dport_reg=DigitalPort( {board_led, led1, led2, led3, sw1, sw2, sw3} );\n" \
     "regs=RegisterBank( {t, d0, a0, a1, a2, a3} );\n" \
 ;
 
@@ -40,6 +40,7 @@ const char * HELP = "EE491 Particle Microcontroller\n"
 #include "App.h"
 #include "DigitalPin.h"
 #include "DigitalPort.h"
+#include "DigitalPortRegister.h"
 // #include "Identifier.h"
 #include "Function.h"
 #include "Pin.h"
@@ -57,7 +58,7 @@ using namespace iot::freenove;
 // *****************************************************************************
 // App and Addons
 // *****************************************************************************
-auto MainDPort = iot::DigitalPort{};
+auto dport = iot::DigitalPort{};
 auto regs = iot::RegisterBank{};
 auto tinker = iot::Tinker{};
 auto cloud = iot::ParticleCloud{};
@@ -69,11 +70,7 @@ auto app = iot::App( HELP );
 // *****************************************************************************
 // Register
 // *****************************************************************************
-auto d0 = iot::Register(
-    [&]() { return MainDPort.get(); },
-    [&]( int v ) { return MainDPort.set( v ); }
-    );
-     
+auto dport_reg = iot::RegisterFactory( dport );
 auto t = iot::Register(
     []() { return millis(); }
     );
@@ -108,7 +105,7 @@ void setup(){
     // *****************************************************************************
     // App Addons
     // *****************************************************************************
-    app.dport = &MainDPort;
+    app.dport = &dport;
     app.regs = &regs;
     app.std_in = &std_in;
     app.std_out = &std_out;
@@ -133,7 +130,7 @@ void setup(){
     // RegisterBank
     // *****************************************************************************
     app.add( t );
-    app.add( d0 );
+    app.add( dport_reg );
     app.add( a0 );
     app.add( a1 );
     app.add( a2 );
@@ -143,10 +140,10 @@ void setup(){
     // Tinker
     // *****************************************************************************
     // These can respond to commands sent from tinker app.
-    app.add( DigitalTinkerFactory( MainDPort ) );
+    app.add( iot::DigitalTinkerFactory( dport ) );
     app.add( AnalogTinkerFactory(  t, iot::TinkerPin::a4 ) ); // A4
-    app.add( AnalogTinkerFactory( d0, iot::TinkerPin::a5 ) ); // A5
-    app.add( AnalogTinkerFactory( d0, iot::TinkerPin::a6 ) ); // A6
+    app.add( AnalogTinkerFactory( dport_reg, iot::TinkerPin::a5 ) ); // A5
+    app.add( AnalogTinkerFactory( dport_reg, iot::TinkerPin::a6 ) ); // A6
     
     app.add( AnalogTinkerFactory( a0, iot::TinkerPin::a0 ) ); // A0
     app.add( AnalogTinkerFactory( a1, iot::TinkerPin::a1 ) ); // A1
@@ -245,7 +242,7 @@ void process( iot::File &i, iot::File &o)
 
 void on_timer_0(){
     thingspeak.set(0, String::format("%010u", t.get()));
-    thingspeak.set(1, String::format("%010u", d0.get()));
+    thingspeak.set(1, String::format("%010u", dport_reg.get()));
     thingspeak.set(2, String::format("%04d", a0.get()));
     thingspeak.set(3, String::format("%04d", a1.get()));
     thingspeak.set(4, String::format("%04d", a2.get()));

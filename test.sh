@@ -45,6 +45,7 @@ test_cin_stdout(){
 
 # Main
 set -x
+set -e
 
 flash_device
 # test_digitalport
