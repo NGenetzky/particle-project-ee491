@@ -3,6 +3,11 @@ namespace iot {
 
 using TinkerFunction = std::function<bool(int, int &)>;
 
+enum class TinkerPin {
+    d0=0, d1=1, d2=2, d3=3, d4=4, d5=5, d6=6, d7=7,
+    a0=8, a1=9, a2=10, a3=11, a4=12, a5=13, a6=14, a7=15
+};
+
 class Tinker {
 
     public:

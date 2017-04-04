@@ -4,10 +4,10 @@
 
 namespace iot {
 
-TinkerFunction TinkerHandler( Register &self, int pin )
+TinkerFunction TinkerHandler( Register &self, iot::TinkerPin pin )
 {
     return [&self, pin]( int p, int &v ) -> bool {
-        if ( p != pin ) {
+        if ( iot::TinkerPin(p) != pin ) {
             return false;
         }
 

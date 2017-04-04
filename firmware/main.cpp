@@ -120,21 +120,20 @@ void setup(){
     // *****************************************************************************
     // These can respond to commands sent from tinker app.
     app.add( TinkerHandler( MainDPort ) );
-    app.add( TinkerHandler( t, 12 ) ); // A4
-    app.add( TinkerHandler( d0, 13 ) ); // A5
-    app.add( TinkerHandler( d0, 14 ) ); // A6
-    app.add( TinkerHandler( a0, 8 ) ); // A0
-    app.add( TinkerHandler( a1, 9 ) ); // A1
-    app.add( TinkerHandler( a2, 10 ) ); // A2
-    app.add( TinkerHandler( a3, 11 ) ); // A3
+    app.add( TinkerHandler(  t, iot::TinkerPin::a4 ) ); // A4
+    app.add( TinkerHandler( d0, iot::TinkerPin::a5 ) ); // A5
+    app.add( TinkerHandler( d0, iot::TinkerPin::a6 ) ); // A6
+    
+    app.add( TinkerHandler( a0, iot::TinkerPin::a0 ) ); // A0
+    app.add( TinkerHandler( a1, iot::TinkerPin::a1 ) ); // A1
+    app.add( TinkerHandler( a2, iot::TinkerPin::a2 ) ); // A2
+    app.add( TinkerHandler( a3, iot::TinkerPin::a3 ) ); // A3
 
     // *****************************************************************************
     // Cloud
     // *****************************************************************************
-    app.tinker->setup_PF_tinker(); // Tinker declares 4 PF_functions.
-    // Particle.function( "get", &iot::DigitalPort::PF_get, app.dport );
-    // Particle.function( "set", &iot::DigitalPort::PF_set, app.dport );
-    // Particle.function( "reg", &iot::RegisterBank::PF_reg, app.regs );
+    // Tinker declares the 4 PF that are expectd by the tinker app.
+    app.tinker->setup_PF_tinker();
     
     cloud.function("DR", iot::particle::tinkerDigitalRead );
     cloud.function("DW", iot::particle::tinkerDigitalWrite );
