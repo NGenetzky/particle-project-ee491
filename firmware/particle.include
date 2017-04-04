@@ -1,11 +1,6 @@
 App.h
 DigitalPin.h
 DigitalPort.h
-AppDigitalPort.h
-AppStdin.h
-AppStdout.h
-AppTinker.h
-AppRegisterBank.h
 Identifier.h
 Function.h
 Pin.h
