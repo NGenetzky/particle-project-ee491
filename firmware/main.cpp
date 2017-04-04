@@ -132,23 +132,27 @@ void setup(){
     // Cloud
     // *****************************************************************************
     app.tinker->setup_PF_tinker(); // Tinker declares 4 PF_functions.
-    Particle.function( "get", &iot::DigitalPort::PF_get, app.dport );
-    Particle.function( "set", &iot::DigitalPort::PF_set, app.dport );
-    Particle.function( "reg", &iot::RegisterBank::PF_reg, app.regs );
-
-    thingspeak.setup_json_map();
-    thingspeak.setup_PV("data");
+    // Particle.function( "get", &iot::DigitalPort::PF_get, app.dport );
+    // Particle.function( "set", &iot::DigitalPort::PF_set, app.dport );
+    // Particle.function( "reg", &iot::RegisterBank::PF_reg, app.regs );
     
     cloud.function("DR", iot::particle::tinkerDigitalRead );
     cloud.function("DW", iot::particle::tinkerDigitalWrite );
     cloud.function("AR", iot::particle::tinkerAnalogRead );
     cloud.function("AW", iot::particle::tinkerAnalogWrite );
+    
     cloud.function("get", std::bind(&iot::DigitalPort::PF_get, app.dport, std::placeholders::_1) );
     cloud.function("set", std::bind(&iot::DigitalPort::PF_set, app.dport, std::placeholders::_1) );
+    
     cloud.function("reg", std::bind(&iot::RegisterBank::PF_reg, app.regs, std::placeholders::_1) );
+    
+    cloud.setup_particle_functions();
 
-
-    delay(500);
+    // *****************************************************************************
+    // Thinkspeak on Timer0
+    // *****************************************************************************
+    thingspeak.setup_json_map();
+    thingspeak.setup_PV("data");
     timer0.start();
 }
 

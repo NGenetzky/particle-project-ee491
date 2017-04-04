@@ -87,6 +87,17 @@ class ParticleCloud {
         this->objects[i].call_f = f;
         return true;
     }
+    
+    unsigned setup_particle_functions(){
+        auto num_pf = unsigned(0);
+        
+        for( auto pf : this->objects ){
+            auto success = Particle.function(pf.name_p, pf.call_f);
+            if( !success ){ break; }
+            num_pf++;
+        }
+        return num_pf;
+    }
 
     private:
         std::vector<ParticleObject> objects; 
