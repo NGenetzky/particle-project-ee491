@@ -4,7 +4,8 @@
 
 namespace iot {
 
-TinkerFunction TinkerHandler(DigitalPort &self){
+// Will respond to DR or DW requests on any pin.
+TinkerFunction DigitalTinkerFactory(DigitalPort &self){
     return [&self] (int p, int &v) -> bool {
         switch ( v ) {
             case iot::Tinker::DR:

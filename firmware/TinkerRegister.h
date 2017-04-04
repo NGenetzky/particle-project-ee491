@@ -4,7 +4,8 @@
 
 namespace iot {
 
-TinkerFunction TinkerHandler( Register &self, iot::TinkerPin pin )
+// Will only respond to AR or AW requests on a specific pin.
+TinkerFunction AnalogTinkerFactory( Register &self, iot::TinkerPin pin )
 {
     return [&self, pin]( int p, int &v ) -> bool {
         if ( iot::TinkerPin(p) != pin ) {

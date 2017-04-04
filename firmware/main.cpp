@@ -27,7 +27,7 @@ const char * HELP = "EE491 Particle Microcontroller\n"
 
 #include <vector> // std::vector
 #include "application.h" // Required for Particle.
-#include "tinker.h"
+#include "particle_tinker.h" // Provide PF for Tinker application.
 
 // Defines constants for Particle Ecosystem.
 #include "global.h"
@@ -119,15 +119,15 @@ void setup(){
     // Tinker
     // *****************************************************************************
     // These can respond to commands sent from tinker app.
-    app.add( TinkerHandler( MainDPort ) );
-    app.add( TinkerHandler(  t, iot::TinkerPin::a4 ) ); // A4
-    app.add( TinkerHandler( d0, iot::TinkerPin::a5 ) ); // A5
-    app.add( TinkerHandler( d0, iot::TinkerPin::a6 ) ); // A6
+    app.add( DigitalTinkerFactory( MainDPort ) );
+    app.add( AnalogTinkerFactory(  t, iot::TinkerPin::a4 ) ); // A4
+    app.add( AnalogTinkerFactory( d0, iot::TinkerPin::a5 ) ); // A5
+    app.add( AnalogTinkerFactory( d0, iot::TinkerPin::a6 ) ); // A6
     
-    app.add( TinkerHandler( a0, iot::TinkerPin::a0 ) ); // A0
-    app.add( TinkerHandler( a1, iot::TinkerPin::a1 ) ); // A1
-    app.add( TinkerHandler( a2, iot::TinkerPin::a2 ) ); // A2
-    app.add( TinkerHandler( a3, iot::TinkerPin::a3 ) ); // A3
+    app.add( AnalogTinkerFactory( a0, iot::TinkerPin::a0 ) ); // A0
+    app.add( AnalogTinkerFactory( a1, iot::TinkerPin::a1 ) ); // A1
+    app.add( AnalogTinkerFactory( a2, iot::TinkerPin::a2 ) ); // A2
+    app.add( AnalogTinkerFactory( a3, iot::TinkerPin::a3 ) ); // A3
 
     // *****************************************************************************
     // Cloud

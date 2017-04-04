@@ -1,4 +1,4 @@
-#include "tinker.h"
+#include "particle_tinker.h"
 
 namespace iot {
 namespace particle {

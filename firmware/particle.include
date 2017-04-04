@@ -11,8 +11,8 @@ global.h
 freenove.h
 photon.h
 main.cpp
-tinker.cpp
-tinker.h
+particle_tinker.cpp
+particle_tinker.h
 Tinker.h
 TinkerDigitalPort.h
 TinkerRegister.h
