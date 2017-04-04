@@ -52,36 +52,37 @@ const char * HELP = "EE491 Particle Microcontroller\n"
 #include "TinkerRegister.h"
 #include "ParticleCloud.h"
 
-
-auto board_led = iot::DigitalPin(iot::photon::pins::board_led);
-
 using namespace iot::freenove;
 
-auto MainDPort = iot::DigitalPort( std::vector<iot::DigitalPin>{
-    iot::photon::pins::board_led,
-    pins::LED1, pins::LED2, pins::LED3, pins::SW1, pins::SW2, pins::SW3,
-} );
-
-auto t = iot::Register( []() { return millis(); });
-auto d0 = iot::Register( []() { return MainDPort.get(); },
-                         []( int v ) { return MainDPort.set( v ); } );
-auto a0 = iot::AnalogRegister( A0 );
-auto a1 = iot::AnalogRegister( A1 );
-auto a2 = iot::AnalogRegister( A2 );
-auto a3 = iot::AnalogRegister( A3 );
-auto regs = iot::RegisterBank( {t, d0, a0, a1, a2, a3} );
-
-auto thingspeak = iot::FixedFields({10,10,4,4,4,4});
-
+// *****************************************************************************
+// App and Addons
+// *****************************************************************************
+auto MainDPort = iot::DigitalPort{};
+auto regs = iot::RegisterBank{};
 auto tinker = iot::Tinker{};
-
 auto cloud = iot::ParticleCloud{};
-
 auto std_in = iot::File();
 auto std_out = iot::File();
 
 auto app = iot::App( HELP );
 
+// *****************************************************************************
+// Register
+// *****************************************************************************
+auto d0 = iot::Register(
+    [&]() { return MainDPort.get(); },
+    [&]( int v ) { return MainDPort.set( v ); }
+    );
+     
+auto t = iot::Register(
+    []() { return millis(); }
+    );
+auto a0 = iot::AnalogRegister( A0 );
+auto a1 = iot::AnalogRegister( A1 );
+auto a2 = iot::AnalogRegister( A2 );
+auto a3 = iot::AnalogRegister( A3 );
+
+auto thingspeak = iot::FixedFields({10,10,4,4,4,4});
 void on_timer_0();
 
 void process( iot::File &i, iot::File &o );
@@ -116,6 +117,29 @@ void setup(){
     app.setup();
     
     // *****************************************************************************
+    // DigitalPort
+    // *****************************************************************************
+    app.add( iot::photon::pins::board_led );
+    app.add( pins::LED1 );
+    app.add( pins::LED2 );
+    app.add( pins::LED3 );
+    app.add( pins::SW1 );
+    app.add( pins::SW2 );
+    app.add( pins::SW3 );
+    
+    app.dport->setup();
+    
+    // *****************************************************************************
+    // RegisterBank
+    // *****************************************************************************
+    app.add( t );
+    app.add( d0 );
+    app.add( a0 );
+    app.add( a1 );
+    app.add( a2 );
+    app.add( a3 );
+    
+    // *****************************************************************************
     // Tinker
     // *****************************************************************************
     // These can respond to commands sent from tinker app.
@@ -129,11 +153,12 @@ void setup(){
     app.add( AnalogTinkerFactory( a2, iot::TinkerPin::a2 ) ); // A2
     app.add( AnalogTinkerFactory( a3, iot::TinkerPin::a3 ) ); // A3
 
+    // Tinker declares the 4 PF that are expectd by the tinker app.
+    app.tinker->setup_PF_tinker();
+    
     // *****************************************************************************
     // Cloud
     // *****************************************************************************
-    // Tinker declares the 4 PF that are expectd by the tinker app.
-    app.tinker->setup_PF_tinker();
     
     cloud.function("DR", iot::particle::tinkerDigitalRead );
     cloud.function("DW", iot::particle::tinkerDigitalWrite );
