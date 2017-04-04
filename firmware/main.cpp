@@ -89,6 +89,10 @@ void process( iot::File &i, iot::File &o );
 Timer timer0(2000, on_timer_0);
 
 void setup(){
+    
+    // *****************************************************************************
+    // Configure Periperials
+    // *****************************************************************************
 
     // pinMode(BOARD_LED, OUTPUT); //INPUT, INPUT_PULLUP, INPUT_PULLDOWN or OUTPUT
     // pinMode(DAC, OUTPUT); //INPUT, INPUT_PULLUP, INPUT_PULLDOWN or OUTPUT
@@ -100,16 +104,20 @@ void setup(){
     // src: https://docs.particle.io/reference/firmware/photon/#analogread-adc-
     // In other words, don't do: pinMode(analog_pin, INPUT);
 
-
     // *****************************************************************************
-    // App
+    // App Addons
     // *****************************************************************************
-    app.add(&MainDPort);
-    app.add(&regs);
+    app.dport = &MainDPort;
+    app.regs = &regs;
     app.std_in = &std_in;
     app.std_out = &std_out;
     app.tinker = &tinker;
-
+    
+    app.setup();
+    
+    // *****************************************************************************
+    // Tinker
+    // *****************************************************************************
     // These can respond to commands sent from tinker app.
     app.add( TinkerHandler( MainDPort ) );
     app.add( TinkerHandler( t, 12 ) ); // A4
@@ -120,12 +128,13 @@ void setup(){
     app.add( TinkerHandler( a2, 10 ) ); // A2
     app.add( TinkerHandler( a3, 11 ) ); // A3
 
-    app.setup_PF_get(); // digitalport
-    app.setup_PF_set(); // digitalport
-    app.setup_PF_tinker(); // Tinker
-    regs.setup_PF_reg();
-    
-    app.setup();
+    // *****************************************************************************
+    // Cloud
+    // *****************************************************************************
+    app.tinker->setup_PF_tinker(); // Tinker declares 4 PF_functions.
+    Particle.function( "get", &iot::DigitalPort::PF_get, app.dport );
+    Particle.function( "set", &iot::DigitalPort::PF_set, app.dport );
+    Particle.function( "reg", &iot::RegisterBank::PF_reg, app.regs );
 
     thingspeak.setup_json_map();
     thingspeak.setup_PV("data");
@@ -137,6 +146,7 @@ void setup(){
     cloud.function("get", std::bind(&iot::DigitalPort::PF_get, app.dport, std::placeholders::_1) );
     cloud.function("set", std::bind(&iot::DigitalPort::PF_set, app.dport, std::placeholders::_1) );
     cloud.function("reg", std::bind(&iot::RegisterBank::PF_reg, app.regs, std::placeholders::_1) );
+
 
     delay(500);
     timer0.start();
