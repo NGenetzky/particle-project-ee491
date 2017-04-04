@@ -120,56 +120,73 @@ void setup(){
     // *****************************************************************************
     // DigitalPort
     // *****************************************************************************
-    app.add( iot::photon::pins::board_led );
-    app.add( pins::LED1 );
-    app.add( pins::LED2 );
-    app.add( pins::LED3 );
-    app.add( pins::SW1 );
-    app.add( pins::SW2 );
-    app.add( pins::SW3 );
+    dport.add( iot::photon::pins::board_led );
+    dport.add( pins::LED1 );
+    dport.add( pins::LED2 );
+    dport.add( pins::LED3 );
+    dport.add( pins::SW1 );
+    dport.add( pins::SW2 );
+    dport.add( pins::SW3 );
     
-    app.dport->setup();
+    dport.setup();
     
     // *****************************************************************************
     // RegisterBank
     // *****************************************************************************
-    app.add( t );
-    app.add( dport_reg );
-    app.add( a0 );
-    app.add( a1 );
-    app.add( a2 );
-    app.add( a3 );
+    regs.add( t );
+    regs.add( dport_reg );
+    regs.add( a0 );
+    regs.add( a1 );
+    regs.add( a2 );
+    regs.add( a3 );
     
     // *****************************************************************************
     // Tinker
     // *****************************************************************************
     // These can respond to commands sent from tinker app.
-    app.add( iot::DigitalTinkerFactory( dport ) );
-    app.add( AnalogTinkerFactory(  t, iot::TinkerPin::a4 ) ); // A4
-    app.add( AnalogTinkerFactory( dport_reg, iot::TinkerPin::a5 ) ); // A5
-    app.add( AnalogTinkerFactory( dport_reg, iot::TinkerPin::a6 ) ); // A6
+    tinker.add( iot::DigitalTinkerFactory( dport ) );
+    tinker.add( AnalogTinkerFactory(  t, iot::TinkerPin::a4 ) ); // A4
+    tinker.add( AnalogTinkerFactory( dport_reg, iot::TinkerPin::a5 ) ); // A5
+    tinker.add( AnalogTinkerFactory( dport_reg, iot::TinkerPin::a6 ) ); // A6
     
-    app.add( AnalogTinkerFactory( a0, iot::TinkerPin::a0 ) ); // A0
-    app.add( AnalogTinkerFactory( a1, iot::TinkerPin::a1 ) ); // A1
-    app.add( AnalogTinkerFactory( a2, iot::TinkerPin::a2 ) ); // A2
-    app.add( AnalogTinkerFactory( a3, iot::TinkerPin::a3 ) ); // A3
+    tinker.add( AnalogTinkerFactory( a0, iot::TinkerPin::a0 ) ); // A0
+    tinker.add( AnalogTinkerFactory( a1, iot::TinkerPin::a1 ) ); // A1
+    tinker.add( AnalogTinkerFactory( a2, iot::TinkerPin::a2 ) ); // A2
+    tinker.add( AnalogTinkerFactory( a3, iot::TinkerPin::a3 ) ); // A3
 
     // Tinker declares the 4 PF that are expectd by the tinker app.
-    app.tinker->setup_PF_tinker();
+    tinker.setup_PF_tinker();
+    
+    // *****************************************************************************
+    // File
+    // *****************************************************************************
+    std_in.setup();
+    std_out.setup();
     
     // *****************************************************************************
     // Cloud
     // *****************************************************************************
+    // Variables:
+    std_in.setup_PV_data( "stdin" );
+    std_out.setup_PV_data( "stdout" );
     
+    // Functions:
     cloud.function("DR", iot::particle::tinkerDigitalRead );
     cloud.function("DW", iot::particle::tinkerDigitalWrite );
     cloud.function("AR", iot::particle::tinkerAnalogRead );
     cloud.function("AW", iot::particle::tinkerAnalogWrite );
     
-    cloud.function("get", std::bind(&iot::DigitalPort::PF_get, app.dport, std::placeholders::_1) );
-    cloud.function("set", std::bind(&iot::DigitalPort::PF_set, app.dport, std::placeholders::_1) );
-    
-    cloud.function("reg", std::bind(&iot::RegisterBank::PF_reg, app.regs, std::placeholders::_1) );
+    // DigitalPort
+    cloud.function("get", std::bind(
+        &iot::DigitalPort::PF_get, app.dport, std::placeholders::_1) );
+    cloud.function("set", std::bind(
+        &iot::DigitalPort::PF_set, app.dport, std::placeholders::_1) );
+    // RegisterBank
+    cloud.function("reg", std::bind(
+        &iot::RegisterBank::PF_reg, app.regs, std::placeholders::_1) );
+    // File
+    cloud.function("cin", std::bind(
+        &iot::File::PF_in, app.std_in, std::placeholders::_1) );
     
     cloud.setup_particle_functions();
 

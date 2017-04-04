@@ -45,7 +45,6 @@ class App {
         
 #if DIGITALPORT_EN == 1
         if(this->dport == nullptr){ return -1; }
-        this->dport->setup();
 #endif
 
 #if REGISTERBANK_EN == 1
@@ -58,15 +57,10 @@ class App {
         
 #if 1 == STDIN_EN
         if(this->std_in == nullptr){ return -1; }
-        std_in->setup();
-        std_in->setup_PV_data( "stdin" );
-        std_in->setup_PF_in( "cin" );
 #endif
 
 #if 1 == STDOUT_EN
         if(this->std_out == nullptr){ return -1; }
-        std_out->setup();
-        std_out->setup_PV_data( "stdout" );
 #endif
 
 #if 1 == PARTICLECLOUD_EN
