@@ -73,10 +73,14 @@ auto regs = iot::RegisterBank( {t, d0, a0, a1, a2, a3} );
 
 auto thingspeak = iot::FixedFields({10,10,4,4,4,4});
 
+auto tinker = iot::Tinker{};
+
 auto cloud = iot::ParticleCloud{};
 
-// auto app = iot::App(HELP);
-auto app = iot::App( HELP, MainDPort );
+auto std_in = iot::File();
+auto std_out = iot::File();
+
+auto app = iot::App( HELP );
 
 void on_timer_0();
 
@@ -96,12 +100,18 @@ void setup(){
     // src: https://docs.particle.io/reference/firmware/photon/#analogread-adc-
     // In other words, don't do: pinMode(analog_pin, INPUT);
 
-    app.setup();
 
-    app.add(regs);
+    // *****************************************************************************
+    // App
+    // *****************************************************************************
+    app.add(&MainDPort);
+    app.add(&regs);
+    app.std_in = &std_in;
+    app.std_out = &std_out;
+    app.tinker = &tinker;
 
     // These can respond to commands sent from tinker app.
-    app.add( TinkerHandler( app.dport ) );
+    app.add( TinkerHandler( MainDPort ) );
     app.add( TinkerHandler( t, 12 ) ); // A4
     app.add( TinkerHandler( d0, 13 ) ); // A5
     app.add( TinkerHandler( d0, 14 ) ); // A6
@@ -110,12 +120,12 @@ void setup(){
     app.add( TinkerHandler( a2, 10 ) ); // A2
     app.add( TinkerHandler( a3, 11 ) ); // A3
 
-    // Digital read 
     app.setup_PF_get(); // digitalport
     app.setup_PF_set(); // digitalport
     app.setup_PF_tinker(); // Tinker
-
     regs.setup_PF_reg();
+    
+    app.setup();
 
     thingspeak.setup_json_map();
     thingspeak.setup_PV("data");
@@ -124,9 +134,9 @@ void setup(){
     cloud.function("DW", iot::particle::tinkerDigitalWrite );
     cloud.function("AR", iot::particle::tinkerAnalogRead );
     cloud.function("AW", iot::particle::tinkerAnalogWrite );
-    cloud.function("get", std::bind(&iot::DigitalPort::PF_get, &app.dport, std::placeholders::_1) );
-    cloud.function("set", std::bind(&iot::DigitalPort::PF_set, &app.dport, std::placeholders::_1) );
-    cloud.function("reg", std::bind(&iot::RegisterBank::PF_reg, &app.regs, std::placeholders::_1) );
+    cloud.function("get", std::bind(&iot::DigitalPort::PF_get, app.dport, std::placeholders::_1) );
+    cloud.function("set", std::bind(&iot::DigitalPort::PF_set, app.dport, std::placeholders::_1) );
+    cloud.function("reg", std::bind(&iot::RegisterBank::PF_reg, app.regs, std::placeholders::_1) );
 
     delay(500);
     timer0.start();
@@ -139,11 +149,11 @@ void setup(){
 void loop(){
     app.loop();
 
-    if(app.std_in.available()){
-        process(app.std_in, app.std_out);
+    if(app.std_in->available()){
+        process( *app.std_in, *app.std_out);
     }
-    if(app.std_out.available()){
-        Serial.write(app.std_out.read());
+    if(app.std_out->available()){
+        Serial.write( app.std_out->read() );
     }
 }
 
@@ -153,7 +163,7 @@ void loop(){
 // is ok to call any functions at you would also call from loop().
 void serialEvent()
 {
-    app.std_in.write(Serial.read());
+    app.std_in->write(Serial.read());
 }
 
 // Will skip until first function.
