@@ -14,6 +14,9 @@
 #define REGISTERBANK_EN 1
 #include "RegisterBank.h"
 
+#define PARTICLECLOUD_EN 1
+#include "ParticleCloud.h"
+
 namespace iot {
 class App {
     public:
@@ -64,6 +67,10 @@ class App {
         if(this->std_out == nullptr){ return -1; }
         std_out->setup();
         std_out->setup_PV_data( "stdout" );
+#endif
+
+#if 1 == PARTICLECLOUD_EN
+        if(this->cloud == nullptr){ return -1; }
 #endif
         
         return 0;
@@ -140,6 +147,10 @@ class App {
 
 #if 1 == STDOUT_EN
     iot::File *std_out = nullptr;
+#endif
+
+#if 1 == PARTICLECLOUD_EN
+    iot::ParticleCloud *cloud = nullptr;
 #endif
 
 };

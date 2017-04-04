@@ -86,6 +86,9 @@ void process( iot::File &i, iot::File &o );
 
 Timer timer0(2000, on_timer_0);
 
+// *****************************************************************************
+// Setup
+// *****************************************************************************
 void setup(){
     
     // *****************************************************************************
@@ -110,6 +113,7 @@ void setup(){
     app.std_in = &std_in;
     app.std_out = &std_out;
     app.tinker = &tinker;
+    app.cloud = &cloud;
     
     app.setup();
     
@@ -177,6 +181,9 @@ void setup(){
     timer0.start();
 }
 
+// *****************************************************************************
+// Loop
+// *****************************************************************************
 // This routine gets called repeatedly, like once every 5-15 milliseconds.
 // Spark firmware interleaves background CPU activity associated with WiFi +
 // Cloud activity with your code. Make sure none of your code delays or blocks
@@ -192,6 +199,9 @@ void loop(){
     }
 }
 
+// *****************************************************************************
+// Special Functions
+// *****************************************************************************
 // Called whenever there is data to be read from a serial peripheral.
 // The serialEvent functions are called by the system as part of the
 // application loop. Since these are an extension of the application loop, it
@@ -201,6 +211,9 @@ void serialEvent()
     app.std_in->write(Serial.read());
 }
 
+// *****************************************************************************
+// Other Functions
+// *****************************************************************************
 // Will skip until first function.
 // Will parse the function from input stream, call it and then put result on
 // output stream.

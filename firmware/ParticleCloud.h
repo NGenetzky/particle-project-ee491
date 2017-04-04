@@ -1,4 +1,5 @@
 
+#pragma once
 //
 // Exert from https://docs.particle.io/reference/firmware/photon/#cloud-functions
 //
