@@ -91,8 +91,9 @@ Timer timer0(2000, on_timer_0);
 
 auto status0 = LEDStatus{};
 auto status0_color = iot::RegisterFactory(status0);
-auto status0_red = iot::RegisterFactory(status0);
-
+auto status0_r = iot::RegisterFactory(status0, iot::LEDStatusRegister::red);
+auto status0_g = iot::RegisterFactory(status0, iot::LEDStatusRegister::green);
+auto status0_b = iot::RegisterFactory(status0, iot::LEDStatusRegister::blue);
 
 // *****************************************************************************
 // Setup
@@ -148,7 +149,9 @@ void setup(){
     regs.add( a2 );
     regs.add( a3 );
     regs.add( status0_color );
-    regs.add( status0_red );
+    regs.add( status0_r );
+    regs.add( status0_g );
+    regs.add( status0_b );
      
     // *****************************************************************************
     // Tinker

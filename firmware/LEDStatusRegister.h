@@ -14,22 +14,29 @@ enum class LEDStatusRegister {
     speed, // pattern speed (LEDSpeed)
     period, // pattern period in milliseconds (uint16_t)
     priority, // status priority (LEDPriority)
-    red,
-    green,
-    blue,
+    red, // component of RGB color 0xRR (uint8_t)
+    green, // component of RGB color 0xGG (uint8_t)
+    blue, // component of RGB color 0xBB (uint8_t)
 };
 
 int from_color( uint32_t c, LEDStatusRegister addr){
     switch(addr){
-    case LEDStatusRegister::red:
-        return ((c & COLOR_MASK_RED) >> 16);
+    case LEDStatusRegister::red:    return ((c & COLOR_MASK_RED) >> 16);
+    case LEDStatusRegister::green:  return ((c & COLOR_MASK_GREEN) >> 8);
+    case LEDStatusRegister::blue:   return ((c & COLOR_MASK_BLUE));
+    default: return int(c);
     }
 }
 
 uint32_t edit_color( uint32_t c, int v, LEDStatusRegister addr){
+    auto v8 = unsigned( v & 0xFF);
     switch(addr){
     case LEDStatusRegister::red:
-        return (c & COLOR_MASK_RED) | ( (v >> 16) & COLOR_MASK_RED);
+        return (c & ~COLOR_MASK_RED) | ( (v8 << 16) & COLOR_MASK_RED);
+    case LEDStatusRegister::green:
+        return (c & ~COLOR_MASK_GREEN) | ( (v8 << 8) & COLOR_MASK_GREEN);
+    case LEDStatusRegister::blue:
+        return (c & ~COLOR_MASK_BLUE) | ( v8 & COLOR_MASK_BLUE);
     default:
         return c;
     }
@@ -44,7 +51,6 @@ iot::Register RegisterFactory( LEDStatus &status,
             return iot::Register(
                 [&status]() {
                     return int(status.color());
-                    
                 },
                 [&status]( int v ) {
                     status.setColor( int(v) ); return 0;
@@ -53,25 +59,20 @@ iot::Register RegisterFactory( LEDStatus &status,
             break;
             
         case LEDStatusRegister::red:
+        case LEDStatusRegister::green:
+        case LEDStatusRegister::blue:
             return iot::Register(
-                [&status]() {
-                    return from_color(status.color(), LEDStatusRegister::red);
+                [&status, addr]() {
+                    return from_color(status.color(), addr);
                 },
-                [&status]( int v ) {
-                    auto new_c = edit_color( status.color(), v, LEDStatusRegister::red);
-                    status.setColor( int(v) );
+                [&status, addr]( int v ) {
+                    auto new_c = edit_color( status.color(), v, addr);
+                    status.setColor( new_c );
                     return new_c;
                 }
             );
             break;
     };
 }
-
-// iot::Register RegisterFactory( LEDStatus &status ){
-//     return iot::Register(
-//         [&]() { return int(status.color()); },
-//         [&]( int v ) { status.setColor( int(v) ); return 0; }
-//     );
-// }
 
 }
