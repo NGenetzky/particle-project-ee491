@@ -53,6 +53,7 @@ const char * HELP = "EE491 Particle Microcontroller\n"
 #include "TinkerRegister.h"
 #include "ParticleCloud.h"
 #include "file_pipe.h"
+#include "LEDStatusRegister.h"
 
 using namespace iot::freenove;
 
@@ -83,7 +84,13 @@ auto a3 = iot::AnalogRegister( A3 );
 auto thingspeak = iot::FixedFields({10,10,4,4,4,4});
 void on_timer_0();
 
+// *****************************************************************************
+// Particle Library Classes
+// *****************************************************************************
 Timer timer0(2000, on_timer_0);
+auto rgb_inactive = LEDStatus{};
+auto rgb_inactive_reg = iot::RegisterFactory(rgb_inactive);
+
 
 // *****************************************************************************
 // Setup
@@ -138,7 +145,8 @@ void setup(){
     regs.add( a1 );
     regs.add( a2 );
     regs.add( a3 );
-    
+    regs.add( rgb_inactive_reg );
+     
     // *****************************************************************************
     // Tinker
     // *****************************************************************************
@@ -195,6 +203,8 @@ void setup(){
     thingspeak.setup_json_map();
     thingspeak.setup_PV("data");
     timer0.start();
+    
+    rgb_inactive.setActive();
 }
 
 // *****************************************************************************
@@ -237,5 +247,5 @@ void on_timer_0(){
     thingspeak.set({ t.get(), dport_reg.get(),
                     a0.get(), a1.get(), a2.get(), a3.get() });
 
-    thingspeak.publish();
+    // thingspeak.publish();
 }

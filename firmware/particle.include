@@ -22,3 +22,4 @@ Register.h
 RegisterBank.h
 FixedFields.h
 ParticleCloud.h
+LEDStatusRegister.h
