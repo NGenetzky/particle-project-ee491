@@ -54,6 +54,7 @@ const char * HELP = "EE491 Particle Microcontroller\n"
 #include "ParticleCloud.h"
 #include "file_pipe.h"
 #include "LEDStatusRegister.h"
+#include "DuplexInt.h"
 
 using namespace iot::freenove;
 
@@ -84,6 +85,13 @@ auto a1 = iot::AnalogRegister( A1 );
 auto a2 = iot::AnalogRegister( A2 );
 auto a3 = iot::AnalogRegister( A3 );
 
+auto serial_dinf = iot::DuplexIntFactory_Serial();
+auto stdin_dinf = iot::DuplexIntFactory( std_in );
+auto stdout_dinf = iot::DuplexIntFactory( std_out );
+
+// *****************************************************************************
+// Other
+// *****************************************************************************
 auto thingspeak = iot::FixedFields({10,10,4,4,4,4});
 void on_timer_0();
 
@@ -230,7 +238,11 @@ void loop(){
         iot::cloud_pipe( *app.cloud, *app.std_in, *app.std_out);
     }
     if(app.std_out->available()){
-        Serial.write( app.std_out->read() );
+        for( auto bytes = app.std_out->available(); bytes<0; --bytes) {
+            // Serial.write( app.std_out->read() );
+            // serial_dinf( stdout_dinf(-2) );
+            iot::stream_char( stdout_dinf, serial_dinf );
+        }
     }
 }
 
@@ -241,9 +253,17 @@ void loop(){
 // The serialEvent functions are called by the system as part of the
 // application loop. Since these are an extension of the application loop, it
 // is ok to call any functions at you would also call from loop().
-void serialEvent()
-{
-    app.std_in->write(Serial.read());
+// serialEvent: called when there is data available from Serial
+// usbSerialEvent1: called when there is data available from USBSerial1
+// serialEvent1: called when there is data available from Serial1
+// serialEvent2: called when there is data available from Serial2
+
+void serialEvent() {
+    for( auto bytes = Serial.available(); bytes<0; --bytes) {
+        // app.std_in->write(Serial.read());
+        iot::stream_char( stdin_dinf, stdin_dinf );
+        // stdin_dinf( serial_dinf(-2) );
+    }
 }
 
 // *****************************************************************************
