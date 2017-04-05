@@ -52,6 +52,7 @@ const char * HELP = "EE491 Particle Microcontroller\n"
 #include "TinkerDigitalPort.h"
 #include "TinkerRegister.h"
 #include "ParticleCloud.h"
+#include "file_pipe.h"
 
 using namespace iot::freenove;
 
@@ -81,8 +82,6 @@ auto a3 = iot::AnalogRegister( A3 );
 
 auto thingspeak = iot::FixedFields({10,10,4,4,4,4});
 void on_timer_0();
-
-void process( iot::File &i, iot::File &o );
 
 Timer timer0(2000, on_timer_0);
 
@@ -209,7 +208,7 @@ void loop(){
     app.loop();
 
     if(app.std_in->available()){
-        process( *app.std_in, *app.std_out);
+        iot::cloud_pipe( *app.cloud, *app.std_in, *app.std_out);
     }
     if(app.std_out->available()){
         Serial.write( app.std_out->read() );
@@ -234,42 +233,6 @@ void serialEvent()
 // Will skip until first function.
 // Will parse the function from input stream, call it and then put result on
 // output stream.
-void process( iot::File &i, iot::File &o)
-{
-    iot::Function f;
-    auto start = i.find('$');
-    if ( start == -1 ) {
-        // No start character found.
-        return;
-    } else if ( 0 < start ) {
-        // Discard characters before start.
-        auto thrown = std::vector<char>();
-        for ( auto x = start; 0 < x; x-- ) {
-            auto c = i.read();
-            thrown.push_back(c);
-        }
-        thrown.push_back('\0');
-        Particle.publish("process.err1", String(thrown.data()));
-    }
-
-    auto end = i.find(')');
-    if ( end == -1 ) { return; }
-
-    // Attempt to read function from stream
-    if( !i.read(f) ){
-        Particle.publish("process.err2", i.data());
-        return;
-    }
-
-    auto fx = cloud.find(f.get_name());
-    if(nullptr == fx){
-        Particle.publish("process.err4", i.data());
-    }
-    auto rsp = fx->call_f(f.get_args());
-    o.write(String(rsp));
-    o.write('\n');
-}
-
 void on_timer_0(){
     thingspeak.set({ t.get(), dport_reg.get(),
                     a0.get(), a1.get(), a2.get(), a3.get() });

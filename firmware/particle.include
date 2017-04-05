@@ -6,6 +6,7 @@ Identifier.h
 Function.h
 Pin.h
 File.h
+file_pipe.h
 board.cpp
 board.h
 global.h
