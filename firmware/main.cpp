@@ -236,13 +236,11 @@ void loop(){
 
     if(app.std_in->available()){
         iot::cloud_pipe( *app.cloud, *app.std_in, *app.std_out);
+        // iot::stream_byte( stdin_dinf, stdout_dinf );
     }
     if(app.std_out->available()){
-        for( auto bytes = app.std_out->available(); bytes<0; --bytes) {
-            // Serial.write( app.std_out->read() );
-            // serial_dinf( stdout_dinf(-2) );
-            iot::stream_char( stdout_dinf, serial_dinf );
-        }
+        // Serial.write( app.std_out->read() );
+        iot::stream_bytes( stdout_dinf, serial_dinf, app.std_out->available());
     }
 }
 
@@ -259,11 +257,8 @@ void loop(){
 // serialEvent2: called when there is data available from Serial2
 
 void serialEvent() {
-    for( auto bytes = Serial.available(); bytes<0; --bytes) {
-        // app.std_in->write(Serial.read());
-        iot::stream_char( stdin_dinf, stdin_dinf );
-        // stdin_dinf( serial_dinf(-2) );
-    }
+    // app.std_in->write(Serial.read());
+    iot::stream_bytes( serial_dinf, stdin_dinf, Serial.available());
 }
 
 // *****************************************************************************

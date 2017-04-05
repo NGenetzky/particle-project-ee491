@@ -4,33 +4,43 @@ namespace iot {
 #include "application.h" // Required for Particle.
 #include "File.h" // Required for Particle.
 
-using DuplexIntFunctor = std::function<int(int)>;
+using DuplexType = int32_t; // Implementation depends on this.
+using DuplexIntFunctor = std::function<DuplexType(DuplexType)>;
 
 enum class DuplexOp {
     READ_CHAR=-2,
     WRITE_CHAR=0,
 };
 
-struct DuplexArg {
-    public:
-        DuplexArg( DuplexOp ops ): i(int(ops)) {}
-        DuplexArg( int i ): i(i) {}
-        operator int() const { return this->i; }
-    private:
-        int i;
+enum class DuplexRV {
+    SUCCESS=0,
+    NONE_AVAILABLE=-1,
+    NOT_IMPLEMENTED=-2,
 };
 
-DuplexOp get_op(int i){
-    if(i <= 0xFF){
-        return DuplexOp::WRITE_CHAR;
-    } else {
-        return DuplexOp::READ_CHAR;
-    }
-}
+struct DuplexArg {
+    public:
+        DuplexArg( DuplexOp ops ): i(DuplexType(ops)) {}
+        DuplexArg( DuplexType i ): i(i) {}
+        operator DuplexType() const { return this->i; }
+        
+        DuplexOp op(){
+            auto control = (uint32_t(this->i) >> 24);
+            switch(control){
+                case 0: return DuplexOp::WRITE_CHAR;
+                default:
+                case 1: return DuplexOp::READ_CHAR;
+            }
+        }
+        
+    private:
+        DuplexType i;
+};
 
 DuplexIntFunctor DuplexIntFactory_Serial(){
-    return [](int i) -> int {
-        switch(get_op(i)){
+    return [](DuplexType i) -> DuplexType {
+        auto x = DuplexArg(i);
+        switch( x.op() ){
             case DuplexOp::WRITE_CHAR:
                 return int(Serial.write(i));
             default:
@@ -41,10 +51,11 @@ DuplexIntFunctor DuplexIntFactory_Serial(){
 }
 
 DuplexIntFunctor DuplexIntFactory( iot::File &f){
-    return [&f](int i) -> int {
-        switch(get_op(i)){
+    return [&f](DuplexType i) -> DuplexType {
+        auto x = DuplexArg(i);
+        switch( x.op() ){
             case DuplexOp::WRITE_CHAR:
-                return int(f.write(i));
+                return f.write(i);
             default:
             case DuplexOp::READ_CHAR:
                 return f.read();
@@ -52,8 +63,22 @@ DuplexIntFunctor DuplexIntFactory( iot::File &f){
     };
 }
 
-void stream_char( DuplexIntFunctor &in, DuplexIntFunctor &out ){
-    in( out( DuplexArg(DuplexOp::READ_CHAR) ) );
+void stream_byte( DuplexIntFunctor &in, DuplexIntFunctor &out ){
+    auto a = in( DuplexArg(DuplexOp::READ_CHAR) );
+    if( int(DuplexRV::NONE_AVAILABLE) == a ){ return; }
+    out( a );
+}
+
+unsigned stream_bytes( DuplexIntFunctor &in, DuplexIntFunctor &out,
+    unsigned len)
+{
+    auto bytes = unsigned(0);
+    for( ; bytes<len; ++bytes) {
+        auto a = in( DuplexArg(DuplexOp::READ_CHAR) );
+        if( int(DuplexRV::NONE_AVAILABLE) == a ){ break; }
+        out( a );
+    }
+    return bytes;
 }
 
 }
