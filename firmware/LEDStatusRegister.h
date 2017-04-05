@@ -1,4 +1,5 @@
 
+#pragma once
 #include "application.h" // Required for Particle.
 #include "Register.h"
 

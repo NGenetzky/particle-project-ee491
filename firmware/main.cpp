@@ -73,8 +73,11 @@ auto app = iot::App( HELP );
 // Register
 // *****************************************************************************
 auto dport_reg = iot::RegisterFactory( dport );
-auto t = iot::Register(
+auto millis_reg = iot::Register(
     []() { return millis(); }
+    );
+auto micros_reg = iot::Register(
+    []() { return micros(); }
     );
 auto a0 = iot::AnalogRegister( A0 );
 auto a1 = iot::AnalogRegister( A1 );
@@ -142,7 +145,7 @@ void setup(){
     // *****************************************************************************
     // RegisterBank
     // *****************************************************************************
-    regs.add( t );
+    regs.add( millis_reg );
     regs.add( dport_reg );
     regs.add( a0 );
     regs.add( a1 );
@@ -158,7 +161,7 @@ void setup(){
     // *****************************************************************************
     // These can respond to commands sent from tinker app.
     tinker.add( iot::DigitalTinkerFactory( dport ) );
-    tinker.add( AnalogTinkerFactory(  t, iot::TinkerPin::a4 ) ); // A4
+    tinker.add( AnalogTinkerFactory(  millis_reg, iot::TinkerPin::a4 ) ); // A4
     tinker.add( AnalogTinkerFactory( dport_reg, iot::TinkerPin::a5 ) ); // A5
     tinker.add( AnalogTinkerFactory( dport_reg, iot::TinkerPin::a6 ) ); // A6
     
@@ -250,7 +253,7 @@ void serialEvent()
 // Will parse the function from input stream, call it and then put result on
 // output stream.
 void on_timer_0(){
-    thingspeak.set({ t.get(), dport_reg.get(),
+    thingspeak.set({ millis_reg.get(), dport_reg.get(),
                     a0.get(), a1.get(), a2.get(), a3.get() });
 
     // thingspeak.publish();

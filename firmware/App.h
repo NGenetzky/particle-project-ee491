@@ -23,19 +23,9 @@ class App {
 // *****************************************************************************
 // Constructors
 // *****************************************************************************
+    App() = default;
     App(const char *HELP): HELP(HELP)
     { };
-
-    App( const char *HELP,
-#if DIGITALPORT_EN == 1
-        DigitalPort *digitalport
-#endif
-        )
-        :HELP( HELP )
-#if DIGITALPORT_EN == 1
-        , dport( digitalport )
-#endif
-        {};
 
 // *****************************************************************************
 // Main (setup & loop)
@@ -83,7 +73,7 @@ class App {
 // *****************************************************************************
     private:
         const char *HELP;
-        int loop_count = 0;
+        unsigned loop_count = 0;
 
 // *****************************************************************************
 // Optional Components:
