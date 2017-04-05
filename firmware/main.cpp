@@ -88,8 +88,10 @@ void on_timer_0();
 // Particle Library Classes
 // *****************************************************************************
 Timer timer0(2000, on_timer_0);
-auto rgb_inactive = LEDStatus{};
-auto rgb_inactive_reg = iot::RegisterFactory(rgb_inactive);
+
+auto status0 = LEDStatus{};
+auto status0_color = iot::RegisterFactory(status0);
+auto status0_red = iot::RegisterFactory(status0);
 
 
 // *****************************************************************************
@@ -145,7 +147,8 @@ void setup(){
     regs.add( a1 );
     regs.add( a2 );
     regs.add( a3 );
-    regs.add( rgb_inactive_reg );
+    regs.add( status0_color );
+    regs.add( status0_red );
      
     // *****************************************************************************
     // Tinker
@@ -204,7 +207,7 @@ void setup(){
     thingspeak.setup_PV("data");
     timer0.start();
     
-    rgb_inactive.setActive();
+    status0.setActive();
 }
 
 // *****************************************************************************
