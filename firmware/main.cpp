@@ -55,8 +55,7 @@ const char * HELP = "EE491 Particle Microcontroller\n"
 #include "file_pipe.h"
 #include "LEDStatusRegister.h"
 #include "DuplexInt.h"
-
-using namespace iot::freenove;
+#include "thingspeak_freenove.h"
 
 // *****************************************************************************
 // App and Addons
@@ -80,6 +79,7 @@ auto millis_reg = iot::Register(
 auto micros_reg = iot::Register(
     []() { return micros(); }
     );
+    
 auto a0 = iot::AnalogRegister( A0 );
 auto a1 = iot::AnalogRegister( A1 );
 auto a2 = iot::AnalogRegister( A2 );
@@ -141,12 +141,12 @@ void setup(){
     // DigitalPort
     // *****************************************************************************
     dport.add( iot::photon::pins::board_led );
-    dport.add( pins::LED1 );
-    dport.add( pins::LED2 );
-    dport.add( pins::LED3 );
-    dport.add( pins::SW1 );
-    dport.add( pins::SW2 );
-    dport.add( pins::SW3 );
+    dport.add( iot::freenove::pins::LED1 );
+    dport.add( iot::freenove::pins::LED2 );
+    dport.add( iot::freenove::pins::LED3 );
+    dport.add( iot::freenove::pins::SW1 );
+    dport.add( iot::freenove::pins::SW2 );
+    dport.add( iot::freenove::pins::SW3 );
     
     dport.setup();
     
@@ -217,8 +217,9 @@ void setup(){
     // *****************************************************************************
     // Thinkspeak on Timer0
     // *****************************************************************************
-    thingspeak.setup_json_map();
-    thingspeak.setup_PV("data");
+    // thingspeak.setup_json_map();
+    // thingspeak.setup_PV("data");
+    iot::freenove::thingspeak::setup();
     timer0.start();
     
     status0.setActive();
@@ -268,8 +269,9 @@ void serialEvent() {
 // Will parse the function from input stream, call it and then put result on
 // output stream.
 void on_timer_0(){
-    thingspeak.set({ millis_reg.get(), dport_reg.get(),
-                    a0.get(), a1.get(), a2.get(), a3.get() });
+    // thingspeak.set({ millis_reg.get(), dport_reg.get(),
+    //                 a0.get(), a1.get(), a2.get(), a3.get() });
 
-    // thingspeak.publish();
+    // thingspeak.publish("freenove");
+    iot::freenove::thingspeak::update(true);
 }
