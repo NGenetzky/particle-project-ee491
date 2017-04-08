@@ -92,13 +92,12 @@ auto stdout_dinf = iot::DuplexIntFactory( std_out );
 // *****************************************************************************
 // Other
 // *****************************************************************************
-auto thingspeak = iot::FixedFields({10,10,4,4,4,4});
-void on_timer_0();
+// auto thingspeak = iot::FixedFields({10,10,4,4,4,4});
 
 // *****************************************************************************
 // Particle Library Classes
 // *****************************************************************************
-Timer timer0(2000, on_timer_0);
+// Timer timer0(2000, on_timer_0);
 
 auto status0 = LEDStatus{};
 auto status0_color = iot::RegisterFactory(status0);
@@ -141,13 +140,6 @@ void setup(){
     // DigitalPort
     // *****************************************************************************
     dport.add( iot::photon::pins::board_led );
-    dport.add( iot::freenove::pins::LED1 );
-    dport.add( iot::freenove::pins::LED2 );
-    dport.add( iot::freenove::pins::LED3 );
-    dport.add( iot::freenove::pins::SW1 );
-    dport.add( iot::freenove::pins::SW2 );
-    dport.add( iot::freenove::pins::SW3 );
-    
     dport.setup();
     
     // *****************************************************************************
@@ -213,16 +205,6 @@ void setup(){
         &iot::File::PF_in, app.std_in, std::placeholders::_1) );
     
     cloud.setup_particle_functions();
-
-    // *****************************************************************************
-    // Thinkspeak on Timer0
-    // *****************************************************************************
-    // thingspeak.setup_json_map();
-    // thingspeak.setup_PV("data");
-    iot::freenove::thingspeak::setup();
-    timer0.start();
-    
-    status0.setActive();
 }
 
 // *****************************************************************************
@@ -248,6 +230,8 @@ void loop(){
 // *****************************************************************************
 // Special Functions
 // *****************************************************************************
+
+// Serial:
 // Called whenever there is data to be read from a serial peripheral.
 // The serialEvent functions are called by the system as part of the
 // application loop. Since these are an extension of the application loop, it
@@ -256,22 +240,7 @@ void loop(){
 // usbSerialEvent1: called when there is data available from USBSerial1
 // serialEvent1: called when there is data available from Serial1
 // serialEvent2: called when there is data available from Serial2
-
 void serialEvent() {
     // app.std_in->write(Serial.read());
     iot::stream_bytes( serial_dinf, stdin_dinf, Serial.available());
-}
-
-// *****************************************************************************
-// Other Functions
-// *****************************************************************************
-// Will skip until first function.
-// Will parse the function from input stream, call it and then put result on
-// output stream.
-void on_timer_0(){
-    // thingspeak.set({ millis_reg.get(), dport_reg.get(),
-    //                 a0.get(), a1.get(), a2.get(), a3.get() });
-
-    // thingspeak.publish("freenove");
-    iot::freenove::thingspeak::update(true);
 }

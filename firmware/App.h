@@ -1,6 +1,9 @@
 #pragma once
 #include "application.h" // Required for Particle.
 
+// *****************************************************************************
+// Configuration and Optional Libraries
+// *****************************************************************************
 #define DIGITALPORT_EN 1
 #include "DigitalPort.h"
 
