@@ -22,6 +22,7 @@ class File {
     bool setup_PV_data(char const * const name){
         return Particle.variable(name, this->char_p);
     }
+    const char* PV_data(){ return this->char_p; }
 
     bool setup_PF_in(char const * const name){
         return Particle.function(name, &File::PF_in, this);
@@ -81,6 +82,10 @@ class File {
         }
         return bytes_written;
     }
+    
+    // TODO: write(char*)
+    // std::vector<byte> myVector = std::vector((byte*)cstring, (byte*)ctring + strlen(cstring))
+
     
     // read() returns the first byte of incoming serial data available (or -1
     // if no data is available) - int

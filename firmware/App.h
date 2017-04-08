@@ -73,6 +73,7 @@ class App {
 // Functions
 // *****************************************************************************
     bool setup_PV_help(){ return Particle.variable("help", this->HELP); }
+    const char* PV_help(){ return this->HELP; }
     
     void SUB_event_handler(const char *event, const char *data) {
         auto data_str = String(data);
@@ -93,6 +94,9 @@ class App {
 // *****************************************************************************
     public:
     
+// *****************************************************************************
+// Tinker
+// *****************************************************************************
 #if 1 == TINKER_EN
     iot::Tinker *tinker;
     
@@ -107,6 +111,9 @@ class App {
     bool setup_PF_tinker() { return this->tinker->setup_PF_tinker(); }
 #endif
 
+// *****************************************************************************
+// DigitalPort
+// *****************************************************************************
 #if 1 == DIGITALPORT_EN
     DigitalPort *dport = nullptr;
     
@@ -124,6 +131,9 @@ class App {
     bool setup_PF_digitalwrite() { return this->dport->setup_PF_digitalwrite(); }
 #endif
     
+// *****************************************************************************
+// RegisterBank
+// *****************************************************************************
 #if 1 == REGISTERBANK_EN
     iot::RegisterBank *regs = nullptr;     
     
@@ -138,14 +148,23 @@ class App {
     bool setup_PF_reg() { return this->regs->setup_PF_reg(); }
 #endif
     
+// *****************************************************************************
+// File
+// *****************************************************************************
 #if 1 == STDIN_EN
     iot::File *std_in = nullptr;
+    int PF_in(String args){ return std_in->PF_in(args); }
+    const char* PV_stdin(){ return std_in->PV_data(); }
 #endif
 
 #if 1 == STDOUT_EN
     iot::File *std_out = nullptr;
+    const char* PV_stdout(){ return std_out->PV_data(); }
 #endif
 
+// *****************************************************************************
+// ParticleCloud
+// *****************************************************************************
 #if 1 == PARTICLECLOUD_EN
     iot::ParticleCloud *cloud = nullptr;
 #endif

@@ -191,8 +191,9 @@ void setup(){
     // Cloud
     // *****************************************************************************
     // Variables:
-    std_in.setup_PV_data( "stdin" );
-    std_out.setup_PV_data( "stdout" );
+    Particle.variable( "HELP", app.PV_help() );
+    Particle.variable( "stdin", app.PV_stdin() );
+    Particle.variable( "stdout", app.PV_stdout() );
     
     // Functions:
     cloud.function("DR", iot::particle::tinkerDigitalRead );
@@ -219,8 +220,9 @@ void setup(){
     // *****************************************************************************
     // Other Setup
     // *****************************************************************************
-    Particle.publish("name", dev.name());
     Particle.subscribe(dev.name(), event_handler, MY_DEVICES);
+    
+    // Serial1.begin(9600); // via TX/RX pins
 }
 
 // *****************************************************************************

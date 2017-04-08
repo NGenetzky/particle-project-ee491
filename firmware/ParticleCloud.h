@@ -38,7 +38,7 @@ namespace iot {
 struct ParticleObject {
     // Generic interface
     // name for variable or function.
-    char* name(){ return this->name_p; }
+    const char* name(){ return this->name_p; }
     // Variable
     char* data(){ return this->data_f(); }
     // Function
@@ -49,7 +49,7 @@ struct ParticleObject {
     
     // Specific implementation
     ParticleObject() = default;
-    char *name_p = nullptr;
+    const char *name_p = nullptr;
     std::function<char*()> data_f;
     std::function<int(const char* args)> call_f;
     std::function<void(const char* event, const char* data)> handle_f;
@@ -81,7 +81,7 @@ class ParticleCloud {
     }
     
     // Emulate "Particle"
-    bool function( char *fname, std::function<int(const char* args)> f){
+    bool function( const char *fname, std::function<int(const char* args)> f){
         //TODO: use find first.
         auto i = this->emplace_empty();
         this->objects[i].name_p = fname;
