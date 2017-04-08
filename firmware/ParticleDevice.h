@@ -33,28 +33,34 @@ struct ParticleDevice {
         }
     }
     
-    ParticleDevice(){
-        this->device = id_device();        
+    ParticleDevice() : ParticleDevice(DeviceEnum::UNKNOWN) { }
+    ParticleDevice( DeviceEnum d ) : device(d) { }
+    
+    DeviceEnum id(){
+        if( DeviceEnum::UNKNOWN == this->device ){
+            this->device = id_device();        
+        }
+        return this->device;
     }
-    ParticleDevice( DeviceEnum d ) : device(d)
-    { }
     
     String name(){
         switch( this->device ){
             case DeviceEnum::ELI:
-                return "ELI";
+                return "Eli";
             case DeviceEnum::LOGAN:
-                return "LOGAN";
+                return "Logan";
             case DeviceEnum::MATT:
-                return "MATT";
+                return "Matt";
             case DeviceEnum::PARKER:
-                return "PARKER";
+                return "Parker";
             case DeviceEnum::COMRAD:
-                return "COMRAD";
+                return "Comrad";
             default:
-                return "UNKNOWN";
+                return "Unknown";
         }
     }
+    
+    
     
     DeviceEnum device;
     

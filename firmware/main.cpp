@@ -56,6 +56,7 @@ const char * HELP = "EE491 Particle Microcontroller\n"
 #include "LEDStatusRegister.h"
 #include "DuplexInt.h"
 #include "thingspeak_freenove.h"
+#include "ParticleDevice.h"
 
 // *****************************************************************************
 // App and Addons
@@ -66,6 +67,7 @@ auto tinker = iot::Tinker{};
 auto cloud = iot::ParticleCloud{};
 auto std_in = iot::File();
 auto std_out = iot::File();
+auto dev = iot::ParticleDevice();
 
 auto app = iot::App( HELP );
 
@@ -93,6 +95,9 @@ auto stdout_dinf = iot::DuplexIntFactory( std_out );
 // Other
 // *****************************************************************************
 // auto thingspeak = iot::FixedFields({10,10,4,4,4,4});
+void setup();
+void loop();
+void event_handler(const char *event, const char *data);
 
 // *****************************************************************************
 // Particle Library Classes
@@ -109,6 +114,7 @@ auto status0_b = iot::RegisterFactory(status0, iot::LEDStatusRegister::blue);
 // Setup
 // *****************************************************************************
 void setup(){
+    dev.id(); // Identify the Particle Device.
     
     // *****************************************************************************
     // Configure Periperials
@@ -197,6 +203,7 @@ void setup(){
         &iot::DigitalPort::PF_get, app.dport, std::placeholders::_1) );
     cloud.function("set", std::bind(
         &iot::DigitalPort::PF_set, app.dport, std::placeholders::_1) );
+        
     // RegisterBank
     cloud.function("reg", std::bind(
         &iot::RegisterBank::PF_reg, app.regs, std::placeholders::_1) );
@@ -204,7 +211,14 @@ void setup(){
     cloud.function("cin", std::bind(
         &iot::File::PF_in, app.std_in, std::placeholders::_1) );
     
+    // Must occur after all functions have been declared.
     cloud.setup_particle_functions();
+    
+    // *****************************************************************************
+    // Other Setup
+    // *****************************************************************************
+    Particle.publish("name", dev.name());
+    Particle.subscribe(dev.name(), event_handler, MY_DEVICES);
 }
 
 // *****************************************************************************
@@ -244,3 +258,9 @@ void serialEvent() {
     // app.std_in->write(Serial.read());
     iot::stream_bytes( serial_dinf, stdin_dinf, Serial.available());
 }
+
+void event_handler(const char *event, const char *data) {
+    app.SUB_event_handler(event, data);
+}
+
+

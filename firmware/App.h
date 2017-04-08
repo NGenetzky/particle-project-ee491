@@ -69,7 +69,17 @@ class App {
         return 0;
     }
 
+// *****************************************************************************
+// Functions
+// *****************************************************************************
     bool setup_PV_help(){ return Particle.variable("help", this->HELP); }
+    
+    void SUB_event_handler(const char *event, const char *data) {
+        auto data_str = String(data);
+        Particle.publish("event_handler", data_str);
+        this->std_in->write(data_str); // TODO: don't use string.
+    }
+    
 
 // *****************************************************************************
 // Variables
