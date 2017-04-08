@@ -47,6 +47,30 @@ class DigitalPort {
 
     int add(DigitalPin o){this->dpins.push_back(o); return 0; } ;
     
+    int PF_dport( String args )
+    {
+        if( args == "" ){
+            return this->get();
+        }
+        
+        auto equals = args.indexOf( '=' );
+        auto addr = args.toInt();
+
+        if ( equals == -1 ) {
+            // Simple get if no '=' found.
+            return this->digitalRead( addr );
+        } else if (equals == 2) {
+            // Set entire port if nothing before '='.
+            auto value_str = args.substring( equals + 1 );
+            return this->set(value_str.toInt());
+        } else {
+            // Simple set. default to addr=0.
+            auto bit_value = args.substring( equals + 1 );
+            return this->digitalWrite( addr, bit_value.toInt() );
+        }
+        return -1;
+    }
+    
     int PF_get(String args){ return this->get(); }
     int get(){
         auto end = this->dpins.size();
