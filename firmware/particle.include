@@ -23,6 +23,7 @@ RegisterBank.h
 FixedFields.h
 ParticleCloud.h
 ParticleDevice.h
+ParticleSerial.h
 LEDStatusRegister.h
 DuplexInt.h
 thingspeak_freenove.h

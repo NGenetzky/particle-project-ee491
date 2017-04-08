@@ -56,7 +56,8 @@ const char * HELP = "EE491 Particle Microcontroller\n"
 #include "LEDStatusRegister.h"
 #include "DuplexInt.h"
 #include "ParticleDevice.h"
-#include "Program.h"
+// #include "Program.h"
+#include "ParticleSerial.h"
 
 // #include "thingspeak_freenove.h"
 
@@ -196,10 +197,12 @@ void setup(){
     Particle.variable( "stdout", app.PV_stdout() );
     
     // Functions:
-    cloud.function("DR", iot::particle::tinkerDigitalRead );
-    cloud.function("DW", iot::particle::tinkerDigitalWrite );
-    cloud.function("AR", iot::particle::tinkerAnalogRead );
-    cloud.function("AW", iot::particle::tinkerAnalogWrite );
+    
+    // Functions written by the Particle team.
+    // cloud.function("DR", iot::particle::tinkerDigitalRead );
+    // cloud.function("DW", iot::particle::tinkerDigitalWrite );
+    // cloud.function("AR", iot::particle::tinkerAnalogRead );
+    // cloud.function("AW", iot::particle::tinkerAnalogWrite );
     
     // DigitalPort
     cloud.function("get", std::bind(
@@ -213,6 +216,9 @@ void setup(){
     // File
     cloud.function("cin", std::bind(
         &iot::File::PF_in, app.std_in, std::placeholders::_1) );
+    // Serial
+    cloud.function("s0", iot::PF_s0_write );
+    cloud.function("s1", iot::PF_s1_write );
     
     // Must occur after all functions have been declared.
     cloud.setup_particle_functions();
@@ -222,7 +228,8 @@ void setup(){
     // *****************************************************************************
     Particle.subscribe(dev.name(), event_handler, MY_DEVICES);
     
-    // Serial1.begin(9600); // via TX/RX pins
+    status0.setActive();
+    Serial1.begin(9600); // via TX/RX pins
 }
 
 // *****************************************************************************
@@ -238,10 +245,13 @@ void loop(){
     if(app.std_in->available()){
         iot::cloud_pipe( *app.cloud, *app.std_in, *app.std_out);
         // iot::stream_byte( stdin_dinf, stdout_dinf );
+        // Serial1.write( app.std_in->read() );
     }
     if(app.std_out->available()){
-        // Serial.write( app.std_out->read() );
-        iot::stream_bytes( stdout_dinf, serial_dinf, app.std_out->available());
+        Serial.write( app.std_out->read() );
+        // Serial1.write( app.std_out->read() );
+        
+        // iot::stream_bytes( stdout_dinf, serial_dinf, app.std_out->available());
     }
 }
 
@@ -259,8 +269,11 @@ void loop(){
 // serialEvent1: called when there is data available from Serial1
 // serialEvent2: called when there is data available from Serial2
 void serialEvent() {
-    // app.std_in->write(Serial.read());
-    iot::stream_bytes( serial_dinf, stdin_dinf, Serial.available());
+    app.std_in->write(Serial.read()); // Serial -> std_in
+    // iot::stream_bytes( serial_dinf, stdin_dinf, Serial.available());
+}
+void serialEvent1() {
+    app.std_in->write(Serial1.read()); // Serial1 -> std_in
 }
 
 void event_handler(const char *event, const char *data) {
