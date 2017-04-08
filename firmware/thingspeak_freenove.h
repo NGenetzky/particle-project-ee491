@@ -13,15 +13,15 @@ auto sw2 = DigitalPin(pins::SW2);
 auto sw3 = DigitalPin(pins::SW3);
 auto sw4 = DigitalPin(pins::SW4);
 
-auto thingspeak = iot::FixedFields({10,10,4,4,4,4});
+auto data = iot::FixedFields({10,10,4,4,4,4});
     
 void setup( const char *var_name = "data"){
     sw1.setup();
     sw2.setup();
     sw3.setup();
     sw4.setup();
-    thingspeak.setup_json_map();
-    thingspeak.setup_PV(var_name);
+    data.setup_json_map();
+    data.setup_PV(var_name);
 }
 
 int get_digital_value(){
@@ -29,7 +29,7 @@ int get_digital_value(){
 }
 
 void update( bool publish_event=true, const char *event_name = "freenove") {
-    thingspeak.set( { 
+    data.set( { 
         int(millis()),
         get_digital_value(),
         analogRead(A0),
@@ -39,7 +39,7 @@ void update( bool publish_event=true, const char *event_name = "freenove") {
     } );
     
     if(publish_event){
-        thingspeak.publish( event_name );
+        data.publish( event_name );
     }
 }
 

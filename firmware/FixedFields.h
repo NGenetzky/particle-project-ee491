@@ -9,6 +9,10 @@ class FixedFields {
          : width( width ), index( std::vector<unsigned>( width.size(), 0 ) )
      {
      }
+     
+    char* PV_data(){
+        return this->chars.data();
+    }
 
     void setup_PV(String name){
         Particle.variable(name, this->chars.data());
