@@ -16,6 +16,9 @@ class File {
         return 0;
     }
 
+    // *****************************************************************************
+    // Cloud Functions
+    // *****************************************************************************
     bool setup_PV_data(char const * const name){
         return Particle.variable(name, this->char_p);
     }
@@ -32,6 +35,10 @@ class File {
         return this->available();
     }
 
+    // *****************************************************************************
+    // Functions similar to Serial or Vector
+    // *****************************************************************************
+    
     // Get the number of bytes (characters) available for reading from the
     // serial port. This is data that's already arrived and stored in the
     // serial receive buffer.

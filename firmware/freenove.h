@@ -1,9 +1,13 @@
 #pragma once
 #include "application.h" // Required for Particle.
 #include "Pin.h"
+#include "DigitalPort.h"
 
 namespace iot {
 namespace freenove {
+    
+// iot::freenove::thingspeak // See thingspeak_freenove.h
+// iot::freenove::thingspeak::setup();
 
 namespace pins {
 
@@ -28,8 +32,18 @@ namespace pins {
     // const Pin JOYX = Pin(A2, INPUT + 100);  // pin for direction X of joystick
     // const Pin JOYY = Pin(A3, INPUT + 100);  // pin for direction Y of joystick
 
+    void add_digital_pins( iot::DigitalPort &dp ) {
+        dp.add( iot::freenove::pins::LED1 );
+        dp.add( iot::freenove::pins::LED2 );
+        dp.add( iot::freenove::pins::LED3 );
+        dp.add( iot::freenove::pins::SW1 );
+        dp.add( iot::freenove::pins::SW2 );
+        dp.add( iot::freenove::pins::SW3 );
+    }
+
 // pins
 }
+
 
 //freenove
 }

@@ -7,6 +7,7 @@
 
 namespace iot {
     
+// void in__cloudfx__intrv__out(){
 void cloud_pipe( iot::ParticleCloud &cloud, iot::File &i, iot::File &o) {
     iot::Function f;
     auto start = i.find('$');

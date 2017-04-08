@@ -56,6 +56,13 @@ test_cin_stdout(){
     particle get $device stdout
 }
 
+test_device_handler(){
+    particle publish $device '$(reg 7=255)' --private
+    sleep 5s
+    particle get $device stdin
+    particle get $device stdout
+}
+
 ################################################################################
 # Main
 ################################################################################
@@ -76,4 +83,5 @@ flash_device $device
 sleep 10s
 
 # test_digitalport
-test_cin_stdout
+# test_cin_stdout
+test_device_handler

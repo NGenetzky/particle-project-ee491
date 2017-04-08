@@ -55,8 +55,10 @@ const char * HELP = "EE491 Particle Microcontroller\n"
 #include "file_pipe.h"
 #include "LEDStatusRegister.h"
 #include "DuplexInt.h"
-#include "thingspeak_freenove.h"
 #include "ParticleDevice.h"
+#include "Program.h"
+
+// #include "thingspeak_freenove.h"
 
 // *****************************************************************************
 // App and Addons
