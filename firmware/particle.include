@@ -6,7 +6,6 @@ Identifier.h
 Function.h
 Pin.h
 File.h
-file_pipe.h
 board.cpp
 board.h
 global.h
@@ -28,3 +27,4 @@ LEDStatusRegister.h
 DuplexInt.h
 thingspeak_freenove.h
 Program.h
+CloudProgram.h

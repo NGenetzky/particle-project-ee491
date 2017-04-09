@@ -80,7 +80,7 @@ set -e
 ################################################################################
 
 flash_device $device
-sleep 10s
+sleep 15s
 
 # test_digitalport
 # test_cin_stdout

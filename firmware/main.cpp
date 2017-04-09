@@ -52,11 +52,11 @@ const char * HELP = "EE491 Particle Microcontroller\n"
 #include "TinkerDigitalPort.h"
 #include "TinkerRegister.h"
 #include "ParticleCloud.h"
-#include "file_pipe.h"
+#include "CloudProgram.h"
 #include "LEDStatusRegister.h"
 #include "DuplexInt.h"
 #include "ParticleDevice.h"
-// #include "Program.h"
+#include "Program.h"
 #include "ParticleSerial.h"
 
 // #include "thingspeak_freenove.h"
@@ -71,6 +71,8 @@ auto cloud = iot::ParticleCloud{};
 auto std_in = iot::File();
 auto std_out = iot::File();
 auto dev = iot::ParticleDevice();
+auto program = iot::CloudProgramFactory(cloud, std_in, std_out);
+// auto program = iot::Program{};
 
 auto app = iot::App( HELP );
 
@@ -242,11 +244,13 @@ void setup(){
 void loop(){
     app.loop();
 
-    if(app.std_in->available()){
-        iot::cloud_pipe( *app.cloud, *app.std_in, *app.std_out);
-        // iot::stream_byte( stdin_dinf, stdout_dinf );
-        // Serial1.write( app.std_in->read() );
-    }
+    program.run();
+    
+    // if(app.std_in->available()){
+    //     iot::cloud_pipe( *app.cloud, *app.std_in, *app.std_out);
+    //     // iot::stream_byte( stdin_dinf, stdout_dinf );
+    //     // Serial1.write( app.std_in->read() );
+    // }
     if(app.std_out->available()){
         Serial.write( app.std_out->read() );
         // Serial1.write( app.std_out->read() );

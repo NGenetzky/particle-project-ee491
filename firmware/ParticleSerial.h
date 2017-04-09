@@ -2,7 +2,7 @@
 #pragma once
 #include "application.h" // Required for Particle.
 
-#define BUFFER_SERIAL0 1
+#define BUFFER_SERIAL0 0
 #define BUFFER_SERIAL1 1
 
 namespace iot {
@@ -31,7 +31,7 @@ void serialEvent(){
 #endif
     
 #if 1 == BUFFER_SERIAL1
-std::vector<char> s0i;
+std::vector<char> s1i;
 
 // using iot::serialEvent1;
 // Special function that will be called when serial data is recieved.
