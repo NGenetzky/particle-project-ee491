@@ -56,10 +56,13 @@ const char * HELP = "EE491 Particle Microcontroller\n"
 #include "LEDStatusRegister.h"
 #include "DuplexInt.h"
 #include "ParticleDevice.h"
-#include "Program.h"
+// #include "Program.h"
 #include "ParticleSerial.h"
 
-// #include "thingspeak_freenove.h"
+#define FREENOVE_EN 1
+#if 1 == FREENOVE_EN
+#include "thingspeak_freenove.h"
+#endif
 
 // *****************************************************************************
 // App and Addons
@@ -71,8 +74,6 @@ auto cloud = iot::ParticleCloud{};
 auto std_in = iot::File();
 auto std_out = iot::File();
 auto dev = iot::ParticleDevice();
-auto program = iot::CloudProgram(cloud, std_in, std_out);
-// auto program = iot::Program{};
 
 auto app = iot::App( HELP );
 
@@ -121,6 +122,10 @@ auto status0_b = iot::RegisterFactory(status0, iot::LEDStatusRegister::blue);
 void setup(){
     dev.id(); // Identify the Particle Device.
     
+#if 1 == FREENOVE_EN
+    iot::freenove::thingspeak::setup();
+#endif
+    
     // *****************************************************************************
     // Configure Periperials
     // *****************************************************************************
@@ -151,6 +156,9 @@ void setup(){
     // DigitalPort
     // *****************************************************************************
     dport.add( iot::photon::pins::board_led );
+#if 1 == FREENOVE_EN
+    iot::freenove::pins::add_digital_pins( dport );
+#endif
     dport.setup();
     
     // *****************************************************************************
@@ -243,14 +251,12 @@ void setup(){
 // for too long (like more than 5 seconds), or weird things can happen.
 void loop(){
     app.loop();
-
-    program.run();
     
-    // if(app.std_in->available()){
-    //     iot::cloud_pipe( *app.cloud, *app.std_in, *app.std_out);
-    //     // iot::stream_byte( stdin_dinf, stdout_dinf );
-    //     // Serial1.write( app.std_in->read() );
-    // }
+    if(app.std_in->available()){
+        iot::cloud_pipe( *app.cloud, *app.std_in, *app.std_out);
+        // iot::stream_byte( stdin_dinf, stdout_dinf );
+        // Serial1.write( app.std_in->read() );
+    }
     if(app.std_out->available()){
         Serial.write( app.std_out->read() );
         // Serial1.write( app.std_out->read() );
