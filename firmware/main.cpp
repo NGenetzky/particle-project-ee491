@@ -71,7 +71,7 @@ auto cloud = iot::ParticleCloud{};
 auto std_in = iot::File();
 auto std_out = iot::File();
 auto dev = iot::ParticleDevice();
-auto program = iot::CloudProgramFactory(cloud, std_in, std_out);
+auto program = iot::CloudProgram(cloud, std_in, std_out);
 // auto program = iot::Program{};
 
 auto app = iot::App( HELP );

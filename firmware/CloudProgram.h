@@ -46,29 +46,56 @@ void cloud_pipe( iot::ParticleCloud &cloud, iot::File &i, iot::File &o) {
     o.write('\n');
 }
 
-iot::Program CloudProgramFactory(
-    iot::ParticleCloud &cloud,
-    iot::File &i, iot::File &o
-    ) {
-    auto p = iot::Program{};
-    auto task_ids = p.add_tasks({
-        [&i, &o] ( iot::ProgramContext &m){
-            m.in = &i;
-            m.out = &o;
-            Particle.publish("CloudProgram", "0");
-        },
-        [&cloud] ( iot::ProgramContext &m){
-            Particle.publish("CloudProgram", "1");
-            if(m.in->available()){
-                iot::cloud_pipe( cloud, *m.in, *m.out);
-            }
-        }
-        });
-    p.set_control_flow( [task_ids] ( iot::ProgramContext &m) -> std::vector<unsigned> {
-            return task_ids; // execute all my tasks.
-        } );
-    return p;
+iot::ProgramTask  SetFileIOTaskFactory( iot::File &i, iot::File &o){
+    return [&i, &o] ( iot::ProgramContext &m){
+        m.in = &i;
+        m.out = &o;
+    };
 }
+
+iot::ProgramTask  CloudPipeTaskFactory( iot::ParticleCloud &c ){
+    return [&c] ( iot::ProgramContext &m){
+        if(m.in->available()){
+            iot::cloud_pipe( c, *m.in, *m.out);
+        }
+    };
+}
+
+struct CloudProgram {
+    CloudProgram( iot::ParticleCloud &cloud, iot::File &i, iot::File &o ) {
+        this->task_ids = this->program.add_tasks({
+                SetFileIOTaskFactory(i,o),
+                CloudPipeTaskFactory(cloud)
+            });
+    
+        this->program.set_control_flow(
+            [this] ( iot::ProgramContext &m) -> std::vector<unsigned> {
+                 return this->control_flow(m);
+        });
+    }
+    void run(){ this->program.run(); }
+    
+    private:
+    iot::Program program;
+    std::vector<unsigned> task_ids;
+    
+    std::vector<unsigned> control_flow( iot::ProgramContext &m){
+        switch(m.state) {
+            case 0: 
+                m.state=1;
+                return {this->task_ids[0]};
+            case 1:
+                if(m.in->available()){
+                    m.state=2;
+                }
+                return {}; // Idle.
+            case 2:
+                return {task_ids[1]};
+                
+            default: return {}; // Idle.
+        }
+    }
+};
 
 
 // iot
