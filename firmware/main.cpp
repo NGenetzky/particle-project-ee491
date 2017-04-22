@@ -58,6 +58,7 @@ const char * HELP = "EE491 Particle Microcontroller\n"
 #include "ParticleDevice.h"
 // #include "Program.h"
 #include "ParticleSerial.h"
+#include "ParticleSPI.h"
 
 // #define FREENOVE_EN 0
 #if 1 == FREENOVE_EN

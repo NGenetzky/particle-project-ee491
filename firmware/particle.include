@@ -23,6 +23,7 @@ FixedFields.h
 ParticleCloud.h
 ParticleDevice.h
 ParticleSerial.h
+ParticleSPI.h
 LEDStatusRegister.h
 DuplexInt.h
 thingspeak_freenove.h
