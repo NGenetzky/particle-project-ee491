@@ -63,6 +63,14 @@ test_device_handler(){
     particle get $device stdout
 }
 
+test_pio(){
+    particle call $device fx_name "args"
+    particle get $device stdout
+    
+    # particle call $device fx_name "args"
+    # particle get $device stdout
+}
+
 ################################################################################
 # Main
 ################################################################################
@@ -84,4 +92,4 @@ sleep 15s
 
 # test_digitalport
 # test_cin_stdout
-test_device_handler
+# test_device_handler

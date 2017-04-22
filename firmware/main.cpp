@@ -59,7 +59,7 @@ const char * HELP = "EE491 Particle Microcontroller\n"
 // #include "Program.h"
 #include "ParticleSerial.h"
 
-#define FREENOVE_EN 1
+// #define FREENOVE_EN 0
 #if 1 == FREENOVE_EN
 #include "thingspeak_freenove.h"
 #endif
@@ -155,7 +155,20 @@ void setup(){
     // *****************************************************************************
     // DigitalPort
     // *****************************************************************************
-    dport.add( iot::photon::pins::board_led );
+    // dport.add( iot::photon::pins::board_led );
+    
+    dport.add( iot::Pin( A0, OUTPUT) );
+    dport.add( iot::Pin( A1, OUTPUT) );
+    dport.add( iot::Pin( A2, OUTPUT) );
+    dport.add( iot::Pin( A3, OUTPUT) );
+    dport.add( iot::Pin( A4, OUTPUT) );
+    dport.add( iot::Pin( A5, OUTPUT) );
+    dport.add( iot::Pin( A6, OUTPUT) );
+    dport.add( iot::Pin( A7, OUTPUT) );
+    
+    // dport.add( iot::Pin( D0, OUTPUT) );
+    
+    
 #if 1 == FREENOVE_EN
     iot::freenove::pins::add_digital_pins( dport );
 #endif
@@ -180,6 +193,12 @@ void setup(){
     // *****************************************************************************
     // These can respond to commands sent from tinker app.
     tinker.add( iot::DigitalTinkerFactory( dport ) );
+    
+    tinker.add( AnalogTinkerFactory( status0_r, iot::TinkerPin::d0 ) ); // D0
+    tinker.add( AnalogTinkerFactory( status0_g, iot::TinkerPin::d1 ) ); // D1
+    tinker.add( AnalogTinkerFactory( status0_b, iot::TinkerPin::d2 ) ); // D2
+    tinker.add( AnalogTinkerFactory( status0_color, iot::TinkerPin::a7 ) ); // A7
+    
     tinker.add( AnalogTinkerFactory(  millis_reg, iot::TinkerPin::a4 ) ); // A4
     tinker.add( AnalogTinkerFactory( dport_reg, iot::TinkerPin::a5 ) ); // A5
     tinker.add( AnalogTinkerFactory( dport_reg, iot::TinkerPin::a6 ) ); // A6
