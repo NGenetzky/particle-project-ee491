@@ -76,6 +76,9 @@ auto std_in = iot::File();
 auto std_out = iot::File();
 auto dev = iot::ParticleDevice();
 
+// auto spi0 = iot::SpiMaster(&std_in, &std_out);
+auto spi0 = iot::SpiSlave(&std_in, &std_out);
+
 auto app = iot::App( HELP );
 
 // *****************************************************************************
@@ -219,6 +222,11 @@ void setup(){
     std_out.setup();
     
     // *****************************************************************************
+    // SPI
+    // *****************************************************************************
+    spi0.setup();
+    
+    // *****************************************************************************
     // Cloud
     // *****************************************************************************
     // Variables:
@@ -258,6 +266,7 @@ void setup(){
     // *****************************************************************************
     Particle.subscribe(dev.name(), event_handler, MY_DEVICES);
     
+    
     status0.setActive();
     Serial1.begin(9600); // via TX/RX pins
 }
@@ -271,18 +280,19 @@ void setup(){
 // for too long (like more than 5 seconds), or weird things can happen.
 void loop(){
     app.loop();
+    spi0.loop();
     
-    if(app.std_in->available()){
-        iot::cloud_pipe( *app.cloud, *app.std_in, *app.std_out);
-        // iot::stream_byte( stdin_dinf, stdout_dinf );
-        // Serial1.write( app.std_in->read() );
-    }
-    if(app.std_out->available()){
-        Serial.write( app.std_out->read() );
-        // Serial1.write( app.std_out->read() );
+    // if(app.std_in->available()){
+    //     iot::cloud_pipe( *app.cloud, *app.std_in, *app.std_out);
+    //     // iot::stream_byte( stdin_dinf, stdout_dinf );
+    //     // Serial1.write( app.std_in->read() );
+    // }
+    // if(app.std_out->available()){
+    //     Serial.write( app.std_out->read() );
+    //     // Serial1.write( app.std_out->read() );
         
-        // iot::stream_bytes( stdout_dinf, serial_dinf, app.std_out->available());
-    }
+    //     // iot::stream_bytes( stdout_dinf, serial_dinf, app.std_out->available());
+    // }
 }
 
 // *****************************************************************************
@@ -299,11 +309,11 @@ void loop(){
 // serialEvent1: called when there is data available from Serial1
 // serialEvent2: called when there is data available from Serial2
 void serialEvent() {
-    app.std_in->write(Serial.read()); // Serial -> std_in
+    // app.std_in->write(Serial.read()); // Serial -> std_in
     // iot::stream_bytes( serial_dinf, stdin_dinf, Serial.available());
 }
 void serialEvent1() {
-    app.std_in->write(Serial1.read()); // Serial1 -> std_in
+    // app.std_in->write(Serial1.read()); // Serial1 -> std_in
 }
 
 void event_handler(const char *event, const char *data) {
