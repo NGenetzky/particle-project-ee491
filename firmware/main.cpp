@@ -77,7 +77,7 @@ auto std_out = iot::File();
 auto dev = iot::ParticleDevice();
 
 // auto spi0 = iot::SpiMaster(&std_in, &std_out);
-auto spi0 = iot::SpiSlave(&std_in, &std_out);
+// auto spi0 = iot::SpiSlave(&std_in, &std_out);
 
 auto app = iot::App( HELP );
 
@@ -112,7 +112,11 @@ void event_handler(const char *event, const char *data);
 // *****************************************************************************
 // Particle Library Classes
 // *****************************************************************************
-// Timer timer0(2000, on_timer_0);
+#define TIMER0_EN 1
+#if 1 == TIMER0_EN
+void on_timer_0();
+Timer timer0(2000, on_timer_0);
+#endif
 
 auto status0 = LEDStatus{};
 auto status0_color = iot::RegisterFactory(status0);
@@ -224,7 +228,7 @@ void setup(){
     // *****************************************************************************
     // SPI
     // *****************************************************************************
-    spi0.setup();
+    // spi0.setup();
     
     // *****************************************************************************
     // Cloud
@@ -266,6 +270,9 @@ void setup(){
     // *****************************************************************************
     Particle.subscribe(dev.name(), event_handler, MY_DEVICES);
     
+#if 1 == TIMER0_EN
+    timer0.start();
+#endif
     
     status0.setActive();
     Serial1.begin(9600); // via TX/RX pins
@@ -280,7 +287,7 @@ void setup(){
 // for too long (like more than 5 seconds), or weird things can happen.
 void loop(){
     app.loop();
-    spi0.loop();
+    // spi0.loop();
     
     // if(app.std_in->available()){
     //     iot::cloud_pipe( *app.cloud, *app.std_in, *app.std_out);
@@ -309,15 +316,31 @@ void loop(){
 // serialEvent1: called when there is data available from Serial1
 // serialEvent2: called when there is data available from Serial2
 void serialEvent() {
-    // app.std_in->write(Serial.read()); // Serial -> std_in
-    // iot::stream_bytes( serial_dinf, stdin_dinf, Serial.available());
+    auto char_avilable = Serial.available();
+    for(auto i=0; i< char_avilable; i++){
+        // iot::stream_bytes( serial_dinf, stdin_dinf, Serial.available());
+        app.std_in->write(Serial.read()); // Serial -> std_in
+    }
 }
 void serialEvent1() {
-    // app.std_in->write(Serial1.read()); // Serial1 -> std_in
+    auto char_avilable = Serial1.available();
+    for(auto i=0; i< char_avilable; i++){
+        // iot::stream_bytes( serial_dinf, stdin_dinf, Serial1.available());
+        app.std_in->write(Serial1.read()); // Serial1 -> std_in
+    }
 }
 
 void event_handler(const char *event, const char *data) {
     app.SUB_event_handler(event, data);
 }
 
+#if 1 == TIMER0_EN
+void on_timer_0() {
+    if(0 != app.std_in->available())
+    {
+        Particle.publish("stdin", app.std_in->data());
+        app.std_in->clear();
+    }
+}
+#endif
 

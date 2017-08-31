@@ -3,7 +3,7 @@
 #include "application.h" // Required for Particle.
 
 #define BUFFER_SERIAL0 0
-#define BUFFER_SERIAL1 1
+#define BUFFER_SERIAL1 0
 
 namespace iot {
     
