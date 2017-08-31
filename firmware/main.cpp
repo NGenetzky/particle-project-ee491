@@ -234,7 +234,7 @@ void setup(){
     // Cloud
     // *****************************************************************************
     // Variables:
-    Particle.variable( "HELP", app.PV_help() );
+    app.setup_PV_help();
     Particle.variable( "stdin", app.PV_stdin() );
     Particle.variable( "stdout", app.PV_stdout() );
     

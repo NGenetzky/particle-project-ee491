@@ -34,7 +34,6 @@ class App {
 // Main (setup & loop)
 // *****************************************************************************
     int setup(){
-        this->setup_PV_help();
         
 #if DIGITALPORT_EN == 1
         if(this->dport == nullptr){ return -1; }
